@@ -10,7 +10,7 @@ import { viewerTheme } from './viewer.utils';
 
 const useStyles = makeStyles((theme) => ({
   siteContainer: {
-    backgroundImage: `url(/assets/wizard_bg.png)`,
+    backgroundImage: `url(./assets/wizard_bg.png)`,
     backgroundPosition: 'center bottom',
     backgroundRepeat: 'no-repeat',
     backgroundColor: '#007872',
