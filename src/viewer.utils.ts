@@ -1,5 +1,4 @@
-import Checkbox from '@material-ui/core/Checkbox';
-import { createMuiTheme, styled } from '@material-ui/core/styles';
+import { createMuiTheme } from '@material-ui/core/styles';
 import fetch from 'node-fetch';
 import { CollectionInfo } from './interface/collection-info.interface';
 import { OpenseaResponse } from './interface/opensea-response.interface';
@@ -25,7 +24,7 @@ export const viewerTheme = createMuiTheme({
     },
     secondary: {
       light: '#ff7961',
-      main: '#f44336',
+      main: '#f841b3',
       dark: '#ba000d',
       contrastText: '#000',
     },
@@ -53,27 +52,17 @@ export async function getWizardData(): Promise<CollectionInfo | undefined> {
 }
 
 export function getRarityDescriptor(rarity: number): string {
-  if (rarity < 50 / 10000) {
+  if (rarity === 1 / 10000) {
     return 'Legendary';
   }
-  if (rarity < 100 / 10000) {
+  if (rarity < 10 / 10000) {
     return 'Epic';
   }
-  if (rarity < 175 / 10000) {
+  if (rarity < 35 / 10000) {
     return 'Rare';
   }
-  if (rarity < 275 / 10000) {
+  if (rarity < 115 / 10000) {
     return 'Uncommon';
   }
   return 'Common';
 }
-
-export const WizardCheckbox = styled(Checkbox)({
-  root: {
-    color: '#e1c0b1',
-    '&$checked': {
-      color: '#f841b3',
-    },
-  },
-  checked: {},
-});

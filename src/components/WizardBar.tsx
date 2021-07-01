@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Checkbox,
   fade,
   FormControlLabel,
   IconButton,
@@ -11,9 +12,9 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import Twitter from '@material-ui/icons/Twitter';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useState } from 'react';
 import { store } from '../Viewer';
-import { viewerTheme, WizardCheckbox } from '../viewer.utils';
+import { viewerTheme } from '../viewer.utils';
 
 const useStlyes = makeStyles((theme) => ({
   appBarContainer: {
@@ -92,7 +93,17 @@ export function WizardBar(): JSX.Element | null {
   }
   const { ranks } = store;
 
-  console.log(ranks.includeTraitCount);
+  const [search, setSearch] = useState<string | undefined>();
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (search) {
+      if (e.key === 'Enter') {
+        ranks.search(search);
+      }
+    } else {
+      ranks.search(undefined);
+    }
+  };
+
   return (
     <div className={classes.appBarContainer}>
       <div className={clsx(classes.titleContainer, classes.baseContainer)}>
@@ -113,11 +124,11 @@ export function WizardBar(): JSX.Element | null {
         <Toolbar className={classes.toolbarContainer}>
           <div>
             <FormControlLabel
-              control={<WizardCheckbox onClick={ranks.toggleIncludeCount} name="includeTraitCount" />}
+              control={<Checkbox onClick={ranks.toggleIncludeCount} name="includeTraitCount" />}
               label="Trait Count"
             />
             <FormControlLabel
-              control={<WizardCheckbox onClick={ranks.toggleIncludeName} name="includeName" />}
+              control={<Checkbox onClick={ranks.toggleIncludeName} name="includeName" />}
               label="Name Rarity"
             />
           </div>
@@ -126,7 +137,8 @@ export function WizardBar(): JSX.Element | null {
               <SearchIcon />
             </div>
             <InputBase
-              disabled={true}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyUp={handleSearch}
               placeholder="Search…"
               classes={{
                 root: classes.inputRoot,

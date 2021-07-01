@@ -5,4 +5,5 @@ export interface WizardData {
   traits: string[];
   traitCount: number;
   image: string;
+  rank?: number;
 }

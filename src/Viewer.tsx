@@ -12,11 +12,12 @@ const useStyles = makeStyles((theme) => ({
   siteContainer: {
     backgroundImage: `url(./assets/wizard_bg.png)`,
     backgroundPosition: 'center bottom',
-    backgroundRepeat: 'no-repeat',
+    backgroundRepeat: 'repeat-x',
     backgroundColor: '#007872',
     paddingBottom: '520px',
     maxWidth: '100%',
     paddingTop: theme.spacing(2),
+    minHeight: '100vh',
   },
   donation: {
     display: 'flex',
@@ -55,7 +56,7 @@ export default function Viewer(): JSX.Element {
         <FlashOnIcon className={classes.linkIcon} />
         <Typography variant="body1">
           <a
-            href="https://etherscan.io/address/0xbb2281ca5b4d07263112604d1f182ad0ab26a252"
+            href="https://etherscan.io/address/0x8d26c9dac7e16738752fa1446b956a97c63e2f39"
             target="_blank"
             rel="noopener noreferrer"
             className={classes.link}

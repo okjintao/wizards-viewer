@@ -8,8 +8,9 @@ export class RankStore {
   public ranking: WizardData[];
   public includeTraitCount = false;
   public includeName = false;
-  public cutoff?: number;
   public isSorting = false;
+  public cutoff?: number;
+  public filter?: string;
 
   constructor() {
     this.wizardSummary = summary;
@@ -24,6 +25,8 @@ export class RankStore {
       ranking: this.ranking,
       includeTraitCount: this.includeTraitCount,
       includeName: this.includeName,
+      cutoff: this.cutoff,
+      filter: this.filter,
     });
 
     observe(rankObeserver, (_change) => {
@@ -36,8 +39,27 @@ export class RankStore {
     });
   }
 
+  get wizards(): WizardData[] {
+    return this.ranking.filter((wizard, i) => {
+      if (!this.filter) {
+        return true;
+      }
+      const localFilter = this.filter.toLowerCase();
+      const nameMatch = wizard.name.toLowerCase().includes(localFilter);
+      const traitMatch = wizard.traits.some((trait) => trait.toLowerCase().includes(localFilter));
+      const rankMatch = i === Number(localFilter);
+      const serialMatch = i === Number(wizard.id);
+      return nameMatch || traitMatch || rankMatch || serialMatch;
+    });
+  }
+
   evaluateRank(): WizardData[] {
-    return Object.values(this.wizardSummary.wizards).sort((a, b) => this.score(a) - this.score(b));
+    return Object.values(this.wizardSummary.wizards)
+      .sort((a, b) => this.score(a) - this.score(b))
+      .map((w, i) => {
+        w.rank = i;
+        return w;
+      });
   }
 
   score(wizard: WizardData): number {
@@ -87,5 +109,12 @@ export class RankStore {
       return;
     }
     this.includeName = !this.includeName;
+  });
+
+  search = action((filter?: string) => {
+    if (this.isSorting) {
+      return;
+    }
+    this.filter = filter;
   });
 }
