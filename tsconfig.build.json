@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true
+  },
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "test",
+    "**/*spec.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "./node_modules/ethers-typescript-typings/index.d.ts"	
+  ]
+}
