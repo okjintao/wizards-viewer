@@ -151,7 +151,11 @@ const WizardBar = observer((): JSX.Element | null => {
               >
                 {`${user.address?.slice(0, 6)}...${user.address?.slice(user.address.length - 4)}`}
               </Typography>
-              <Typography variant="caption" align="center">{`${wizardCount} wizards`}</Typography>
+              <Typography
+                className={classes.link}
+                variant="caption"
+                onClick={() => window.open(`https://opensea.io/${user.address}`, '_blank')}
+              >{`${wizardCount} wizards`}</Typography>
             </div>
             {hasWizards && <Avatar alt={'Profile Avatar'} src={avatarImage} className={classes.avatar} />}
           </div>
