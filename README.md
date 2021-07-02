@@ -1,1 +1,1 @@
-# Wizards
+# Wizards Viewer UI

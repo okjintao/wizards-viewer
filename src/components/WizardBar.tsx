@@ -1,25 +1,26 @@
 import {
   AppBar,
+  Avatar,
+  Button,
   Checkbox,
   fade,
   FormControlLabel,
-  IconButton,
   InputBase,
   makeStyles,
   Toolbar,
   Typography,
 } from '@material-ui/core';
-import GitHubIcon from '@material-ui/icons/GitHub';
+import FlashOnIcon from '@material-ui/icons/FlashOn';
 import SearchIcon from '@material-ui/icons/Search';
-import Twitter from '@material-ui/icons/Twitter';
 import clsx from 'clsx';
+import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 import { store } from '../Viewer';
 import { viewerTheme } from '../viewer.utils';
 
 const useStlyes = makeStyles((theme) => ({
   appBarContainer: {
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   titleIcon: {
     marginBottom: theme.spacing(1),
@@ -85,14 +86,26 @@ const useStlyes = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
+  link: {
+    textDecoration: 'none',
+    color: '#e0decc',
+    cursor: 'pointer',
+  },
+  accountContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  avatar: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
-export function WizardBar(): JSX.Element | null {
+const WizardBar = observer((): JSX.Element | null => {
   const classes = useStlyes(viewerTheme);
   if (!store) {
     return null;
   }
-  const { ranks } = store;
+  const { ranks, user } = store;
 
   const [search, setSearch] = useState<string | undefined>();
   const handleSearch = (e: React.KeyboardEvent) => {
@@ -105,6 +118,17 @@ export function WizardBar(): JSX.Element | null {
     }
   };
 
+  const connect = async (): Promise<void> => {
+    await user.connect();
+  };
+
+  let wizardCount = 0;
+  let avatarImage = undefined;
+  if (user.wizards && user.wizards.length > 0) {
+    wizardCount = user.wizards.length;
+    avatarImage = user.wizards[0].image;
+  }
+  const hasWizards = wizardCount > 0;
   return (
     <div className={classes.appBarContainer}>
       <div className={clsx(classes.titleContainer, classes.baseContainer)}>
@@ -112,20 +136,26 @@ export function WizardBar(): JSX.Element | null {
           <img src={'./assets/view_wizard.png'} className={classes.titleIcon} />
           <Typography variant="h4">Forgotten Runes Wizard's Cult</Typography>
         </div>
-        <div className={classes.baseContainer}>
-          <IconButton color="inherit" onClick={() => window.open('https://twitter.com/axejintao', '_blank')}>
-            <Twitter className={classes.icon} />
-          </IconButton>
-          <IconButton color="inherit" onClick={() => window.open('https://discord.com/invite/F7WbxwJuZC', '_blank')}>
-            <img src={'./assets/discord.png'} className={classes.icon} />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            onClick={() => window.open('https://github.com/axejintao/wizards-viewer', '_blank')}
-          >
-            <GitHubIcon className={classes.icon} />
-          </IconButton>
-        </div>
+        {!user.wallet && (
+          <Button variant="contained" color="secondary" startIcon={<FlashOnIcon />} onClick={connect}>
+            Connect
+          </Button>
+        )}
+        {user.wallet && (
+          <div className={classes.accountContainer}>
+            <div>
+              <Typography
+                className={classes.link}
+                variant="body1"
+                onClick={() => window.open(`https://etherscan.io/address/${user.address}`, '_blank')}
+              >
+                {`${user.address?.slice(0, 6)}...${user.address?.slice(user.address.length - 4)}`}
+              </Typography>
+              <Typography variant="caption" align="center">{`${wizardCount} wizards`}</Typography>
+            </div>
+            {hasWizards && <Avatar alt={'Profile Avatar'} src={avatarImage} className={classes.avatar} />}
+          </div>
+        )}
       </div>
       <AppBar position="static">
         <Toolbar className={classes.toolbarContainer}>
@@ -158,4 +188,6 @@ export function WizardBar(): JSX.Element | null {
       </AppBar>
     </div>
   );
-}
+});
+
+export default WizardBar;

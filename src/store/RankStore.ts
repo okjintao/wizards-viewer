@@ -5,7 +5,7 @@ import { store } from '../Viewer';
 import summary from '../wizard-summary.json';
 
 export class RankStore {
-  private wizardSummary: WizardSummary;
+  public wizardSummary: WizardSummary;
   public ranking: WizardData[];
   public includeTraitCount = false;
   public includeName = false;

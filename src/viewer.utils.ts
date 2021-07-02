@@ -25,7 +25,7 @@ export const viewerTheme = createMuiTheme({
     secondary: {
       light: '#ff7961',
       main: '#f841b3',
-      dark: '#ba000d',
+      dark: '#6ca0dc',
       contrastText: '#000',
     },
     background: {

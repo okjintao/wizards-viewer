@@ -16,6 +16,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "clsx": "^1.1.1",
+    "ethers": "^5.4.0",
     "mobx": "^6.3.2",
     "mobx-react-lite": "^3.2.0",
     "node-fetch": "^2.6.1",
@@ -26,6 +27,7 @@
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
+    "@typechain/ethers-v5": "^7.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "eslint": "^7.18.0",
@@ -35,7 +37,8 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-simple-import-sort": "7.0.0",
     "gh-pages": "^3.2.3",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "typechain": "^5.1.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -45,7 +48,8 @@
     "format": "yarn run lint --fix",
     "lint": "eslint .",
     "predeploy": "npm run build",
-    "deploy": "echo 'wizards.guide' > ./build/CNAME && gh-pages -d build"
+    "deploy": "echo 'wizards.guide' > ./build/CNAME && gh-pages -d build",
+    "codegen:abi": "typechain --target ethers-v5 --out-dir src/contracts ./src/abi/*.abi"
   },
   "eslintConfig": {
     "extends": [
