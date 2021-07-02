@@ -40,15 +40,20 @@ export class RankStore {
   }
 
   get wizards(): WizardData[] {
-    return this.ranking.filter((wizard, i) => {
+    return this.ranking.filter((wizard) => {
       if (!this.filter) {
         return true;
       }
       const localFilter = this.filter.toLowerCase();
       const nameMatch = wizard.name.toLowerCase().includes(localFilter);
       const traitMatch = wizard.traits.some((trait) => trait.toLowerCase().includes(localFilter));
-      const rankMatch = i === Number(localFilter);
-      const serialMatch = i === Number(wizard.id);
+      let serialMatch = false;
+      let rankMatch = false;
+      if (!isNaN(parseFloat(localFilter))) {
+        const numericFilter = Number(localFilter);
+        serialMatch = wizard.id === numericFilter;
+        rankMatch = wizard.rank === numericFilter;
+      }
       return nameMatch || traitMatch || rankMatch || serialMatch;
     });
   }
@@ -57,7 +62,7 @@ export class RankStore {
     return Object.values(this.wizardSummary.wizards)
       .sort((a, b) => this.score(a) - this.score(b))
       .map((w, i) => {
-        w.rank = i;
+        w.rank = i + 1;
         return w;
       });
   }

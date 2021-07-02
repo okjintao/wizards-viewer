@@ -78,11 +78,11 @@ const WizardList = observer(() => {
   return (
     <div className={classes.wizardListContainer}>
       <List dense>
-        {ranks.wizards.slice(start, end).map((data, i) => {
-          const rank = page * pageSize + i + 1;
-          const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(data.traitCount));
-          const nameRarity = getRarityDescriptor(ranks.getCountRarity(data.nameLength));
-          const rarestTrait = data.traits[0];
+        {ranks.wizards.slice(start, end).map((wizard, i) => {
+          const { rank } = wizard;
+          const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
+          const nameRarity = getRarityDescriptor(ranks.getCountRarity(wizard.nameLength));
+          const rarestTrait = wizard.traits[0];
           const rarestTraitName = rarestTrait.split(': ')[1];
           const rarestTraitRarity = getRarityDescriptor(ranks.getRarity(rarestTrait));
           return (
@@ -98,9 +98,9 @@ const WizardList = observer(() => {
                 <div className={clsx(classes.baseContainer, classes.wizardContainer)}>
                   <ListItemText primary={`${rank}.`} className={classes.rank} />
                   <ListItemAvatar>
-                    <Avatar alt={`${data.name} Avatar`} src={data.image} />
+                    <Avatar alt={`${wizard.name} Avatar`} src={wizard.image} />
                   </ListItemAvatar>
-                  <ListItemText primary={data.name} secondary={`Serial: ${data.id}`} />
+                  <ListItemText primary={wizard.name} secondary={`Serial: ${wizard.id}`} />
                 </div>
                 <div className={classes.baseContainer}>
                   <ListItemText
@@ -110,16 +110,16 @@ const WizardList = observer(() => {
                   />
                   <ListItemText
                     primary={`${traitCountRarity} Trait Count`}
-                    secondary={`${data.traitCount} traits`}
+                    secondary={`${wizard.traitCount} traits`}
                     className={classes.infoItem}
                   />
                   <ListItemText
                     primary={`${nameRarity} Name`}
-                    secondary={`${data.nameLength} part name`}
+                    secondary={`${wizard.nameLength} part name`}
                     className={classes.infoItem}
                   />
                   <ListItemAvatar>
-                    <IconButton onClick={() => window.open(`${baseUrl}${data.id}${ref}`)}>
+                    <IconButton onClick={() => window.open(`${baseUrl}${wizard.id}${ref}`)}>
                       <ExitToAppIcon />
                     </IconButton>
                   </ListItemAvatar>
@@ -127,7 +127,7 @@ const WizardList = observer(() => {
               </ListItem>
               <Collapse key={`collapse-${i}`} in={expanded === rank} unmountOnExit>
                 <Paper className={classes.traitsPaper}>
-                  {data.traits.map((trait, j) => {
+                  {wizard.traits.map((trait, j) => {
                     const [type, name] = trait.split(': ');
                     const typeDisplay = type.charAt(0).toUpperCase() + type.slice(1);
                     const occurence = ranks.getRarityOccurence(trait);
@@ -148,7 +148,7 @@ const WizardList = observer(() => {
         })}
       </List>
       <div className={classes.paginationContainer}>
-        <Pagination count={Math.ceil(ranks.ranking.length / pageSize)} onChange={(_e, page) => setPage(page - 1)} />
+        <Pagination count={Math.ceil(ranks.wizards.length / pageSize)} onChange={(_e, page) => setPage(page - 1)} />
       </div>
     </div>
   );

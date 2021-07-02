@@ -9,6 +9,7 @@ import {
   Toolbar,
   Typography,
 } from '@material-ui/core';
+import GitHubIcon from '@material-ui/icons/GitHub';
 import SearchIcon from '@material-ui/icons/Search';
 import Twitter from '@material-ui/icons/Twitter';
 import clsx from 'clsx';
@@ -117,6 +118,12 @@ export function WizardBar(): JSX.Element | null {
           </IconButton>
           <IconButton color="inherit" onClick={() => window.open('https://discord.com/invite/F7WbxwJuZC', '_blank')}>
             <img src={'./assets/discord.png'} className={classes.icon} />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={() => window.open('https://github.com/axejintao/wizards-viewer', '_blank')}
+          >
+            <GitHubIcon className={classes.icon} />
           </IconButton>
         </div>
       </div>
