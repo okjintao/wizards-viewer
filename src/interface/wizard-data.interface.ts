@@ -6,4 +6,5 @@ export interface WizardData {
   traitCount: number;
   image: string;
   rank?: number;
+  expanded?: boolean;
 }

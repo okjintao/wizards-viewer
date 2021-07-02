@@ -1,6 +1,7 @@
 import { action, extendObservable, observe } from 'mobx';
 import { WizardData } from '../interface/wizard-data.interface';
 import { WizardSummary } from '../interface/wizard-summary.interface';
+import { store } from '../Viewer';
 import summary from '../wizard-summary.json';
 
 export class RankStore {
@@ -44,9 +45,14 @@ export class RankStore {
       if (!this.filter) {
         return true;
       }
+
       const localFilter = this.filter.toLowerCase();
+
+      // match exact words / partials
       const nameMatch = wizard.name.toLowerCase().includes(localFilter);
       const traitMatch = wizard.traits.some((trait) => trait.toLowerCase().includes(localFilter));
+
+      // match ranking / serial number look ups
       let serialMatch = false;
       let rankMatch = false;
       if (!isNaN(parseFloat(localFilter))) {
@@ -54,7 +60,26 @@ export class RankStore {
         serialMatch = wizard.id === numericFilter;
         rankMatch = wizard.rank === numericFilter;
       }
-      return nameMatch || traitMatch || rankMatch || serialMatch;
+
+      // match trait count look up
+      let traitCountMatches = false;
+      try {
+        const [traitCount, maybeTraits] = localFilter.split(' ');
+        if (!isNaN(parseFloat(traitCount)) && maybeTraits.toLowerCase() === 'traits') {
+          traitCountMatches = wizard.traitCount === Number(traitCount);
+        }
+      } catch {}
+
+      // match name length look up
+      let nameLengthMatches = false;
+      try {
+        const maybeNameSearch = localFilter.split(' ');
+        if (!isNaN(parseFloat(maybeNameSearch[0])) && maybeNameSearch.slice(1).join(' ') === 'part name') {
+          nameLengthMatches = wizard.nameLength === Number(maybeNameSearch[0]);
+        }
+      } catch {}
+
+      return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || nameLengthMatches;
     });
   }
 
@@ -120,6 +145,7 @@ export class RankStore {
     if (this.isSorting) {
       return;
     }
+    store.info.setExpanded(undefined);
     this.filter = filter;
   });
 }

@@ -14,7 +14,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { Pagination } from '@material-ui/lab';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { store } from '../Viewer';
 import { getRarityDescriptor, viewerTheme } from '../viewer.utils';
 
@@ -60,14 +60,12 @@ const useStyles = makeStyles((theme) => ({
 
 const WizardList = observer(() => {
   const classes = useStyles(viewerTheme);
-  const { ranks } = store;
+  const { ranks, info } = store;
 
   const pageSize = 8;
   const [page, setPage] = useState(0);
   const start = page * pageSize;
   const end = (page + 1) * pageSize;
-
-  const [expanded, setExpanded] = useState<number | undefined>();
 
   const baseUrl = 'https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/';
   const ref = '?ref=0x8d26c9dac7e16738752fa1446b956a97c63e2f39';
@@ -93,7 +91,7 @@ const WizardList = observer(() => {
                 button
                 component={Paper}
                 className={classes.wizardListItem}
-                onClick={() => setExpanded(expanded !== rank ? rank : undefined)}
+                onClick={() => info.setExpanded(rank)}
               >
                 <div className={clsx(classes.baseContainer, classes.wizardContainer)}>
                   <ListItemText primary={`${rank}.`} className={classes.rank} />
@@ -125,7 +123,7 @@ const WizardList = observer(() => {
                   </ListItemAvatar>
                 </div>
               </ListItem>
-              <Collapse key={`collapse-${i}`} in={expanded === rank} unmountOnExit>
+              <Collapse key={`collapse-${i}`} in={info.expanded === rank} unmountOnExit>
                 <Paper className={classes.traitsPaper}>
                   {wizard.traits.map((trait, j) => {
                     const [type, name] = trait.split(': ');

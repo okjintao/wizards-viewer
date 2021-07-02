@@ -1,6 +1,5 @@
 import { Container, makeStyles, Typography } from '@material-ui/core';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
-import React from 'react';
 import { WizardBar } from './components/WizardBar';
 import WizardList from './components/WizardList';
 import { AppStore } from './interface/app-store.interface';

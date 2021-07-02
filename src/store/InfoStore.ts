@@ -1,19 +1,15 @@
-import { CollectionInfo } from '../interface/collection-info.interface';
+import { action, extendObservable } from 'mobx';
 
 export class InfoStore {
-  private loading = false;
-  public info?: CollectionInfo;
+  public expanded?: number;
 
   constructor() {
-    this.loadInfo();
+    extendObservable(this, {
+      expanded: this.expanded,
+    });
   }
 
-  async loadInfo(): Promise<void> {
-    if (!this.loading) {
-      // this.loading = true;
-      // this.info = await getWizardData();
-      // this.loading = false;
-      // console.log(this.info);
-    }
-  }
+  setExpanded = action((expanded?: number) => {
+    this.expanded = this.expanded !== expanded ? expanded : undefined;
+  });
 }

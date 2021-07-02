@@ -45,7 +45,7 @@
     "format": "yarn run lint --fix",
     "lint": "eslint .",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "echo 'wizards.guide' > ./build/CNAME && gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
