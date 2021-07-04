@@ -40,6 +40,13 @@ export class RankStore {
     });
   }
 
+  get searchOptions(): string[] {
+    const traits = Object.keys(this.wizardSummary.traitOccurences);
+    const traitCounts = Object.keys(this.wizardSummary.traitCounts).map((key) => `${key} traits`);
+    const nameLengths = Object.keys(this.wizardSummary.nameLengths).map((key) => `${key} part name`);
+    return [...traits, ...traitCounts, ...nameLengths];
+  }
+
   get wizards(): WizardData[] {
     return this.ranking.filter((wizard) => {
       if (!this.filter) {
@@ -85,6 +92,7 @@ export class RankStore {
 
   evaluateRank(): WizardData[] {
     return Object.values(this.wizardSummary.wizards)
+      .slice()
       .sort((a, b) => this.score(a) - this.score(b))
       .map((w, i) => {
         w.rank = i + 1;

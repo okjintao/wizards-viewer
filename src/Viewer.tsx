@@ -26,9 +26,9 @@ export const store: AppStore = {
   info: new InfoStore(),
   user: new UserStore(),
 };
+
 export default function Viewer(): JSX.Element {
   const classes = useStyles(viewerTheme);
-
   return (
     <>
       <div className={classes.siteContainer}>

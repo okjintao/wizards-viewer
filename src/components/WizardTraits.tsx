@@ -32,8 +32,8 @@ export default function WizardTraits(props: WizardListItemProps): JSX.Element {
         const descriptor = getRarityDescriptor(rarity);
         return (
           <div key={`${name}-${j}`} className={classes.traitContainer}>
-            <Typography variant="body1">{`${descriptor} ${typeDisplay}`}</Typography>
-            <Typography variant="body2">{name}</Typography>
+            <Typography variant="caption">{`${descriptor} ${typeDisplay}`}</Typography>
+            <Typography variant="body1">{name}</Typography>
             <Typography variant="caption">{`${occurence} of 10,000`}</Typography>
           </div>
         );

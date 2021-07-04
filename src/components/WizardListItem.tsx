@@ -19,7 +19,7 @@ import WizardTraits from './WizardTraits';
 
 const useStyles = makeStyles((theme) => ({
   wizardListItem: {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: '#859d92',
     justifyContent: 'space-between',
   },
   wizardListContainer: {
