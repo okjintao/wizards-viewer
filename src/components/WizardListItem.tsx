@@ -13,7 +13,7 @@ import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { baseUrl, ref } from '../config/constants';
 import { WizardData } from '../interface/wizard-data.interface';
-import { store } from '../Viewer';
+import store from '../store/RootStore';
 import { getRarityDescriptor } from '../viewer.utils';
 import WizardTraits from './WizardTraits';
 
@@ -74,7 +74,7 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
         </div>
         <div className={classes.baseContainer}>
           <ListItemText
-            primary={`${rarestTraitRarity} Rarest Trait`}
+            primary={`${rarestTraitRarity} Trait`}
             secondary={`${rarestTraitName}`}
             className={classes.infoItem}
           />

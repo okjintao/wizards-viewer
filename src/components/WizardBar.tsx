@@ -17,7 +17,7 @@ import { Autocomplete } from '@material-ui/lab';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { store } from '../Viewer';
+import store from '../store/RootStore';
 import { viewerTheme } from '../viewer.utils';
 import WizardFilterOptions from './WizardFilterOptions';
 
@@ -62,7 +62,9 @@ const useStlyes = makeStyles((theme) => ({
   link: {
     textDecoration: 'none',
     color: '#e0decc',
-    cursor: 'pointer',
+    '&:hover': {
+      cursor: 'pointer',
+    },
   },
   accountContainer: {
     display: 'flex',
@@ -77,6 +79,11 @@ const useStlyes = makeStyles((theme) => ({
   filterIcon: {
     marginLeft: theme.spacing(3),
   },
+  listOptions: {
+    marginLeft: theme.spacing(0.75),
+    marginRight: 'auto',
+    display: 'flex',
+  },
 }));
 
 const WizardBar = observer((): JSX.Element | null => {
@@ -85,6 +92,7 @@ const WizardBar = observer((): JSX.Element | null => {
     return null;
   }
   const { ranks, user } = store;
+
   const connect = async (): Promise<void> => {
     await user.connect();
   };
@@ -132,6 +140,18 @@ const WizardBar = observer((): JSX.Element | null => {
       </div>
       <AppBar position="static">
         <Toolbar className={classes.toolbarContainer}>
+          <div className={classes.listOptions}>
+            <Typography variant="h6" className={classes.link} onClick={() => ranks.setShowUser(false)}>
+              Ranks
+            </Typography>
+            <Typography
+              variant="h6"
+              className={clsx(classes.filterIcon, classes.link)}
+              onClick={() => ranks.setShowUser(true)}
+            >
+              My Wizards
+            </Typography>
+          </div>
           <div className={classes.search}>
             <Autocomplete
               id="wizard-filter"

@@ -1,19 +1,23 @@
 import { action, extendObservable, observe } from 'mobx';
+import { RankMap } from '../interface/rank-map.interface';
 import { WizardData } from '../interface/wizard-data.interface';
 import { WizardSummary } from '../interface/wizard-summary.interface';
-import { store } from '../Viewer';
 import summary from '../wizard-summary.json';
+import { RootStore } from './RootStore';
 
 export class RankStore {
+  private store: RootStore;
   public wizardSummary: WizardSummary;
   public ranking: WizardData[];
   public includeTraitCount = false;
   public includeName = false;
   public isSorting = false;
+  public showUser = false;
   public cutoff?: number;
   public filter?: string;
 
-  constructor() {
+  constructor(store: RootStore) {
+    this.store = store;
     this.wizardSummary = summary;
     Object.values(this.wizardSummary.wizards).forEach((wizard, i) => {
       wizard.traits = wizard.traits.sort((a, b) => this.getRarity(a) - this.getRarity(b));
@@ -28,6 +32,7 @@ export class RankStore {
       includeName: this.includeName,
       cutoff: this.cutoff,
       filter: this.filter,
+      showUser: this.showUser,
     });
 
     observe(rankObeserver, (_change) => {
@@ -36,6 +41,7 @@ export class RankStore {
       }
       this.isSorting = true;
       this.ranking = this.evaluateRank();
+      this.store.user.wizards = this.evaluateRank(this.store.user.wizards);
       this.isSorting = false;
     });
   }
@@ -48,7 +54,14 @@ export class RankStore {
   }
 
   get wizards(): WizardData[] {
+    let userWizards: RankMap = {};
+    if (this.store.user.wizards) {
+      userWizards = Object.fromEntries(this.store.user.wizards.map((wizard) => [wizard.id, wizard.rank]));
+    }
     return this.ranking.filter((wizard) => {
+      if (this.showUser && !userWizards[wizard.id!]) {
+        return false;
+      }
       if (!this.filter) {
         return true;
       }
@@ -90,8 +103,8 @@ export class RankStore {
     });
   }
 
-  evaluateRank(): WizardData[] {
-    return Object.values(this.wizardSummary.wizards)
+  evaluateRank(wizards?: WizardData[]): WizardData[] {
+    return Object.values(wizards ?? this.wizardSummary.wizards)
       .slice()
       .sort((a, b) => this.score(a) - this.score(b))
       .map((w, i) => {
@@ -149,11 +162,15 @@ export class RankStore {
     this.includeName = !this.includeName;
   });
 
+  setShowUser = action((showUser: boolean) => {
+    this.showUser = showUser;
+  });
+
   search = action((filter?: string) => {
     if (this.isSorting) {
       return;
     }
-    store.info.setExpanded(undefined);
+    this.store.info.setExpanded(undefined);
     this.filter = filter;
   });
 }

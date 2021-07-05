@@ -1,5 +1,5 @@
 import { Checkbox, FormControlLabel, makeStyles, Paper } from '@material-ui/core';
-import { store } from '../Viewer';
+import store from '../store/RootStore';
 import { viewerTheme } from '../viewer.utils';
 
 const useStyles = makeStyles((theme) => ({

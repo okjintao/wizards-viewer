@@ -3,20 +3,26 @@ import { action, extendObservable } from 'mobx';
 import { wizardsAddress } from '../config/constants';
 import { Wizards__factory } from '../contracts';
 import { WizardData } from '../interface/wizard-data.interface';
-import { store } from '../Viewer';
+import { RootStore } from './RootStore';
 
 export class UserStore {
+  private store: RootStore;
   public wallet?: Signer;
+  public collection?: number[];
   public wizards?: WizardData[];
   public address?: string;
   public display?: number;
 
-  constructor() {
+  constructor(store: RootStore) {
+    this.store = store;
+
     extendObservable(this, {
       wallet: this.wallet,
+      collection: this.collection,
       wizards: this.wizards,
       address: this.address,
     });
+
     this.connect();
   }
 
@@ -34,9 +40,10 @@ export class UserStore {
         this.address = await this.wallet.getAddress();
         const wizardContract = Wizards__factory.connect(wizardsAddress, this.wallet);
         const wizardIds = await wizardContract.tokensOfOwner(this.address);
+        this.collection = wizardIds.map((id) => Number(id.toString()));
         const collection = wizardIds.map((id) => id.toString());
         this.wizards = collection
-          .map((id) => store.ranks.wizardSummary.wizards[id])
+          .map((id) => this.store.ranks.wizardSummary.wizards[id])
           .sort((a, b) => {
             if (!a.rank || !b.rank) {
               return 0;

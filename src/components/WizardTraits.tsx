@@ -1,5 +1,5 @@
 import { makeStyles, Paper, Typography } from '@material-ui/core';
-import { store } from '../Viewer';
+import store from '../store/RootStore';
 import { getRarityDescriptor, viewerTheme } from '../viewer.utils';
 import { WizardListItemProps } from './WizardListItem';
 

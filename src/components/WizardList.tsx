@@ -2,7 +2,7 @@ import { Container, List, makeStyles, TablePagination } from '@material-ui/core'
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { store } from '../Viewer';
+import store from '../store/RootStore';
 import { viewerTheme } from '../viewer.utils';
 import Socials from './Socials';
 import WizardListItem from './WizardListItem';
@@ -21,14 +21,11 @@ const WizardList = observer(() => {
   const classes = useStyles(viewerTheme);
   const { ranks } = store;
 
+  // pagination variables
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const start = page * pageSize;
   const end = (page + 1) * pageSize;
-
-  if (ranks.isSorting) {
-    return null;
-  }
 
   return (
     <div className={classes.itemContainer}>
@@ -42,7 +39,7 @@ const WizardList = observer(() => {
       <div className={clsx(classes.itemContainer, classes.centerContainer)}>
         <TablePagination
           component="div"
-          count={Math.ceil(ranks.wizards.length / pageSize)}
+          count={ranks.wizards.length}
           page={page}
           rowsPerPage={pageSize}
           onChangePage={(_e, page) => setPage(page)}

@@ -9,8 +9,6 @@ module.exports = {
 		'.*',
 		'build',
 		'node_modules',
-		'src/graphql/generated',
-		'src/v1'
 	],
 	parserOptions: {
 		ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
