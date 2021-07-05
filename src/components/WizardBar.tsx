@@ -35,6 +35,10 @@ const useStlyes = makeStyles((theme) => ({
   titleContainer: {
     justifyContent: 'space-between',
     color: '#e1c0b1',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      marginBottom: theme.spacing(1),
+    },
   },
   icon: {
     height: '33px',
@@ -58,6 +62,9 @@ const useStlyes = makeStyles((theme) => ({
   toolbarContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
   },
   link: {
     textDecoration: 'none',
@@ -69,6 +76,17 @@ const useStlyes = makeStyles((theme) => ({
   accountContainer: {
     display: 'flex',
     alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
+    },
+  },
+  searchContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing(1),
+    },
   },
   avatar: {
     marginLeft: theme.spacing(1),
@@ -83,6 +101,10 @@ const useStlyes = makeStyles((theme) => ({
     marginLeft: theme.spacing(0.75),
     marginRight: 'auto',
     display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      margin: 'auto',
+      paddingTop: theme.spacing(1),
+    },
   },
 }));
 
@@ -152,31 +174,33 @@ const WizardBar = observer((): JSX.Element | null => {
               My Wizards
             </Typography>
           </div>
-          <div className={classes.search}>
-            <Autocomplete
-              id="wizard-filter"
-              blurOnSelect
-              freeSolo
-              options={ranks.searchOptions}
-              getOptionLabel={(option) => option}
-              onChange={(_e, val) => ranks.search(val ?? undefined)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Search"
-                  variant="outlined"
-                  size="small"
-                  InputLabelProps={{
-                    style: { color: '#fff' },
-                  }}
-                />
-              )}
-              className={classes.searchBox}
-            />
+          <div className={classes.searchContainer}>
+            <div className={classes.search}>
+              <Autocomplete
+                id="wizard-filter"
+                blurOnSelect
+                freeSolo
+                options={ranks.searchOptions}
+                getOptionLabel={(option) => option}
+                onChange={(_e, val) => ranks.search(val ?? undefined)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Search"
+                    variant="outlined"
+                    size="small"
+                    InputLabelProps={{
+                      style: { color: '#fff' },
+                    }}
+                  />
+                )}
+                className={classes.searchBox}
+              />
+            </div>
+            <IconButton color="inherit" onClick={() => setShowFilter(!showFilter)}>
+              <FilterListIcon />
+            </IconButton>
           </div>
-          <IconButton color="inherit" onClick={() => setShowFilter(!showFilter)}>
-            <FilterListIcon />
-          </IconButton>
         </Toolbar>
       </AppBar>
       <Container>

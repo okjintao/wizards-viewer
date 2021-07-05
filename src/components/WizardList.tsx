@@ -1,4 +1,4 @@
-import { Container, List, makeStyles, TablePagination } from '@material-ui/core';
+import { List, makeStyles, TablePagination } from '@material-ui/core';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
@@ -29,13 +29,11 @@ const WizardList = observer(() => {
 
   return (
     <div className={classes.itemContainer}>
-      <Container>
-        <List dense>
-          {ranks.wizards.slice(start, end).map((wizard) => (
-            <WizardListItem key={wizard.id} wizard={wizard} />
-          ))}
-        </List>
-      </Container>
+      <List dense>
+        {ranks.wizards.slice(start, end).map((wizard) => (
+          <WizardListItem key={wizard.id} wizard={wizard} />
+        ))}
+      </List>
       <div className={clsx(classes.itemContainer, classes.centerContainer)}>
         <TablePagination
           component="div"

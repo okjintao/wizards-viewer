@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   traitContainer: {
     textAlign: 'center',
   },
+  searchCursor: {
+    cursor: 'pointer',
+  },
 }));
 
 export default function WizardTraits(props: WizardListItemProps): JSX.Element {
@@ -33,7 +36,9 @@ export default function WizardTraits(props: WizardListItemProps): JSX.Element {
         return (
           <div key={`${name}-${j}`} className={classes.traitContainer}>
             <Typography variant="caption">{`${descriptor} ${typeDisplay}`}</Typography>
-            <Typography variant="body1">{name}</Typography>
+            <Typography variant="body1" onClick={() => ranks.search(trait)} className={classes.searchCursor}>
+              {name}
+            </Typography>
             <Typography variant="caption">{`${occurence} of 10,000`}</Typography>
           </div>
         );

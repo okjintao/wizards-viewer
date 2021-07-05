@@ -164,6 +164,7 @@ export class RankStore {
 
   setShowUser = action((showUser: boolean) => {
     this.showUser = showUser;
+    this.search(undefined);
   });
 
   search = action((filter?: string) => {
