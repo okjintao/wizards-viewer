@@ -1,4 +1,4 @@
-import { List, makeStyles, TablePagination } from '@material-ui/core';
+import { List, makeStyles, TablePagination, useMediaQuery } from '@material-ui/core';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 const WizardList = observer(() => {
   const classes = useStyles(viewerTheme);
+  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
   const { ranks } = store;
 
   // pagination variables
@@ -36,6 +37,7 @@ const WizardList = observer(() => {
       </List>
       <div className={clsx(classes.itemContainer, classes.centerContainer)}>
         <TablePagination
+          labelRowsPerPage={isMobile ? 'Rows:' : 'Rows per page:'}
           component="div"
           count={ranks.wizards.length}
           page={page}
