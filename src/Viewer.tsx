@@ -1,7 +1,9 @@
 import { Container, makeStyles } from '@material-ui/core';
+import { observer } from 'mobx-react-lite';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Donation from './components/Donation';
+import Routes from './components/Routes';
 import WizardBar from './components/WizardBar';
-import WizardList from './components/WizardList';
 import { viewerTheme } from './viewer.utils';
 
 const useStyles = makeStyles((theme) => ({
@@ -17,17 +19,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Viewer(): JSX.Element {
+const Viewer = observer((): JSX.Element => {
   const classes = useStyles(viewerTheme);
   return (
     <>
       <div className={classes.siteContainer}>
         <Container>
-          <WizardBar />
-          <WizardList />
+          <Router>
+            <WizardBar />
+            <Routes />
+          </Router>
         </Container>
       </div>
       <Donation />
     </>
   );
-}
+});
+
+export default Viewer;

@@ -53,4 +53,8 @@ export class UserStore {
       }
     }
   });
+
+  updateWizards = action((wizards: WizardData[]): void => {
+    this.wizards = wizards;
+  });
 }

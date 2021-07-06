@@ -13,16 +13,16 @@ export class RankStore {
   public includeName = false;
   public isSorting = false;
   public showUser = false;
+  public maxAffinity = false;
   public cutoff?: number;
   public filter?: string;
 
   constructor(store: RootStore) {
     this.store = store;
-    this.wizardSummary = summary;
-    Object.values(this.wizardSummary.wizards).forEach((wizard, i) => {
+    this.wizardSummary = summary as WizardSummary;
+    Object.values(this.wizardSummary.wizards).forEach((wizard) => {
       wizard.traits = wizard.traits.sort((a, b) => this.getRarity(a) - this.getRarity(b));
       wizard.image = wizard.image.replace('ipfs://', 'https://ipfs.io/ipfs/');
-      wizard.id = i;
     });
     this.ranking = this.evaluateRank();
 
@@ -33,6 +33,7 @@ export class RankStore {
       cutoff: this.cutoff,
       filter: this.filter,
       showUser: this.showUser,
+      maxAffinity: this.maxAffinity,
     });
 
     observe(rankObeserver, (_change) => {
@@ -50,16 +51,21 @@ export class RankStore {
     const traits = Object.keys(this.wizardSummary.traitOccurences);
     const traitCounts = Object.keys(this.wizardSummary.traitCounts).map((key) => `${key} traits`);
     const nameLengths = Object.keys(this.wizardSummary.nameLengths).map((key) => `${key} part name`);
-    return [...traits, ...traitCounts, ...nameLengths];
+    const affinityCounts = Object.keys(this.wizardSummary.affinityOccurences).map((key) => `${key} affinity`);
+    return [...traits, ...traitCounts, ...nameLengths, ...affinityCounts];
   }
 
   get wizards(): WizardData[] {
     let userWizards: RankMap = {};
     if (this.store.user.wizards) {
-      userWizards = Object.fromEntries(this.store.user.wizards.map((wizard) => [wizard.id, wizard.rank]));
+      userWizards = Object.fromEntries(this.store.user.wizards.map((wizard) => [wizard.idx, wizard.rank!]));
     }
     return this.ranking.filter((wizard) => {
-      if (this.showUser && !userWizards[wizard.id!]) {
+      if (this.showUser && !userWizards[wizard.idx]) {
+        return false;
+      }
+      const affinityCountMatch = wizard.affinities[wizard.maxAffinity] === wizard.traitCount - 1;
+      if (this.maxAffinity && !affinityCountMatch) {
         return false;
       }
       if (!this.filter) {
@@ -77,7 +83,7 @@ export class RankStore {
       let rankMatch = false;
       if (!isNaN(parseFloat(localFilter))) {
         const numericFilter = Number(localFilter);
-        serialMatch = wizard.id === numericFilter;
+        serialMatch = wizard.idx === numericFilter;
         rankMatch = wizard.rank === numericFilter;
       }
 
@@ -99,7 +105,22 @@ export class RankStore {
         }
       } catch {}
 
-      return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || nameLengthMatches;
+      // match name length look up
+      let affinityMatches = false;
+      try {
+        const maybeAffinitySearch = localFilter.split(' ');
+        if (!isNaN(parseFloat(maybeAffinitySearch[0])) && maybeAffinitySearch.slice(1).join(' ') === 'affinity') {
+          const numericAffinity = Number(maybeAffinitySearch[0]);
+          affinityMatches = wizard.maxAffinity === numericAffinity;
+          if (!affinityMatches) {
+            affinityMatches = Object.keys(wizard.affinities).some((key) => Number(key) === numericAffinity);
+          }
+        }
+      } catch {}
+
+      return (
+        nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || nameLengthMatches || affinityMatches
+      );
     });
   }
 
@@ -148,6 +169,14 @@ export class RankStore {
     return this.wizardSummary.nameLengths[length] / this.wizardSummary.totalWizards;
   }
 
+  getAffinityOccurence(affinity: string) {
+    return this.wizardSummary.affinityOccurences[affinity];
+  }
+
+  getAffinityRarity(affinity: string): number {
+    return this.getAffinityOccurence(affinity) / this.wizardSummary.totalWizards;
+  }
+
   toggleIncludeCount = action(() => {
     if (this.isSorting) {
       return;
@@ -160,6 +189,13 @@ export class RankStore {
       return;
     }
     this.includeName = !this.includeName;
+  });
+
+  toggleMaxAffinity = action(() => {
+    if (this.isSorting) {
+      return;
+    }
+    this.maxAffinity = !this.maxAffinity;
   });
 
   setShowUser = action((showUser: boolean) => {

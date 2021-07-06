@@ -16,8 +16,9 @@ import FlashOnIcon from '@material-ui/icons/FlashOn';
 import { Autocomplete } from '@material-ui/lab';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
-import store from '../store/RootStore';
+import { useContext, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
 import WizardFilterOptions from './WizardFilterOptions';
 
@@ -106,9 +107,14 @@ const useStlyes = makeStyles((theme) => ({
       paddingTop: theme.spacing(1),
     },
   },
+  routerLink: {
+    textDecoration: 'none',
+  },
 }));
 
 const WizardBar = observer((): JSX.Element | null => {
+  const location = useLocation();
+  const store = useContext(StoreContext);
   const classes = useStlyes(viewerTheme);
   if (!store) {
     return null;
@@ -163,44 +169,55 @@ const WizardBar = observer((): JSX.Element | null => {
       <AppBar position="static">
         <Toolbar className={classes.toolbarContainer}>
           <div className={classes.listOptions}>
-            <Typography variant="h6" className={classes.link} onClick={() => ranks.setShowUser(false)}>
-              Ranks
-            </Typography>
-            <Typography
-              variant="h6"
-              className={clsx(classes.filterIcon, classes.link)}
-              onClick={() => ranks.setShowUser(true)}
-            >
-              My Wizards
-            </Typography>
+            <Link to="/" className={classes.routerLink}>
+              <Typography variant="h6" className={classes.link} onClick={() => ranks.setShowUser(false)}>
+                Ranks
+              </Typography>
+            </Link>
+            <Link to="/" className={classes.routerLink}>
+              <Typography
+                variant="h6"
+                className={clsx(classes.filterIcon, classes.link)}
+                onClick={() => ranks.setShowUser(true)}
+              >
+                My Wizards
+              </Typography>
+            </Link>
+            <Link to="/affinities" className={classes.routerLink}>
+              <Typography variant="h6" className={clsx(classes.filterIcon, classes.link)}>
+                Affinities
+              </Typography>
+            </Link>
           </div>
-          <div className={classes.searchContainer}>
-            <div className={classes.search}>
-              <Autocomplete
-                id="wizard-filter"
-                blurOnSelect
-                freeSolo
-                options={ranks.searchOptions}
-                getOptionLabel={(option) => option}
-                onChange={(_e, val) => ranks.search(val ?? undefined)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Search"
-                    variant="outlined"
-                    size="small"
-                    InputLabelProps={{
-                      style: { color: '#fff' },
-                    }}
-                  />
-                )}
-                className={classes.searchBox}
-              />
+          {location.pathname === '/' && (
+            <div className={classes.searchContainer}>
+              <div className={classes.search}>
+                <Autocomplete
+                  id="wizard-filter"
+                  blurOnSelect
+                  freeSolo
+                  options={ranks.searchOptions}
+                  getOptionLabel={(option) => option}
+                  onChange={(_e, val) => ranks.search(val ?? undefined)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Search"
+                      variant="outlined"
+                      size="small"
+                      InputLabelProps={{
+                        style: { color: '#fff' },
+                      }}
+                    />
+                  )}
+                  className={classes.searchBox}
+                />
+              </div>
+              <IconButton color="inherit" onClick={() => setShowFilter(!showFilter)}>
+                <FilterListIcon />
+              </IconButton>
             </div>
-            <IconButton color="inherit" onClick={() => setShowFilter(!showFilter)}>
-              <FilterListIcon />
-            </IconButton>
-          </div>
+          )}
         </Toolbar>
       </AppBar>
       <Container>

@@ -12,9 +12,10 @@ import {
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
+import { useContext } from 'react';
 import { baseUrl, ref } from '../config/constants';
 import { WizardData } from '../interface/wizard-data.interface';
-import store from '../store/RootStore';
+import { StoreContext } from '../store/StoreContext';
 import { getRarityDescriptor, viewerTheme } from '../viewer.utils';
 import WizardTraits from './WizardTraits';
 
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
     width: '35px',
     [theme.breakpoints.down('sm')]: {
-      maxWidth: '5px',
+      maxWidth: '20px',
     },
   },
   baseContainer: {
@@ -51,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   infoItem: {
-    width: '125px',
+    width: '145px',
     overflow: 'wrap',
     marginLeft: theme.spacing(1.5),
     textAlign: 'right',
@@ -75,15 +76,20 @@ export interface WizardListItemProps {
 
 const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
   const classes = useStyles();
+  const store = useContext(StoreContext);
   const { ranks, info } = store;
   const { wizard } = props;
   const { rank } = wizard;
   const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
-  const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
-  const nameRarity = getRarityDescriptor(ranks.getCountRarity(wizard.nameLength));
+
   const rarestTrait = wizard.traits[0];
   const rarestTraitName = rarestTrait.split(': ')[1];
   const rarestTraitRarity = getRarityDescriptor(ranks.getRarity(rarestTrait));
+  const maxAffinity = Object.entries(wizard.affinities).sort((a, b) => b[1] - a[1])[0][0];
+  const affinityRarity = getRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
+  const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
+  const nameRarity = getRarityDescriptor(ranks.getNameRarity(wizard.nameLength));
+
   return (
     <>
       <ListItem
@@ -99,35 +105,42 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
           <ListItemAvatar>
             <Avatar alt={`${wizard.name} Avatar`} src={wizard.image} />
           </ListItemAvatar>
-          <ListItemText primary={wizard.name} secondary={`Serial: ${wizard.id}`} />
+          <ListItemText primary={wizard.name} secondary={`Serial: ${wizard.idx}`} />
         </div>
         <div className={classes.baseContainer}>
           <ListItemText
-            primary={`${rarestTraitRarity} Trait`}
+            primary={`${rarestTraitRarity} Top Trait`}
             secondary={`${rarestTraitName}`}
             className={classes.infoItem}
           />
           <ListItemText
-            primary={`${traitCountRarity} Trait Count`}
-            secondary={`${wizard.traitCount} traits`}
+            primary={`${affinityRarity} Affinity`}
+            secondary={`${wizard.affinities[maxAffinity]} / ${wizard.traitCount - 1} traits`}
             className={classes.infoItem}
           />
           {!isMobile && (
-            <ListItemText
-              primary={`${nameRarity} Name`}
-              secondary={`${wizard.nameLength} part name`}
-              className={classes.infoItem}
-            />
+            <>
+              <ListItemText
+                primary={`${traitCountRarity} Trait Count`}
+                secondary={`${wizard.traitCount} traits`}
+                className={classes.infoItem}
+              />
+              <ListItemText
+                primary={`${nameRarity} Name`}
+                secondary={`${wizard.nameLength} part name`}
+                className={classes.infoItem}
+              />
+            </>
           )}
           <ListItemAvatar className={classes.avatar}>
-            <IconButton onClick={() => window.open(`${baseUrl}${wizard.id}${ref}`)}>
+            <IconButton onClick={() => window.open(`${baseUrl}${wizard.idx}${ref}`)}>
               <ExitToAppIcon />
             </IconButton>
           </ListItemAvatar>
         </div>
       </ListItem>
       <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
-        <WizardTraits wizard={wizard} />
+        <WizardTraits wizard={wizard} affinity={maxAffinity} />
       </Collapse>
     </>
   );
