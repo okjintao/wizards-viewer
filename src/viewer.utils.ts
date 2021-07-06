@@ -1,7 +1,9 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 import fetch from 'node-fetch';
+import { rarityRegistry } from './config/constants';
 import { CollectionInfo } from './interface/collection-info.interface';
 import { OpenseaResponse } from './interface/opensea-response.interface';
+import { RarityConfig } from './interface/rarity-config.interface';
 
 const openseaGraphUrl = 'https://api.opensea.io/graphql/';
 const wizardQuery = {
@@ -29,7 +31,7 @@ export const viewerTheme = createMuiTheme({
       contrastText: '#000',
     },
     background: {
-      paper: '#859d92',
+      paper: '#1c3b4b',
     },
   },
   typography: {
@@ -43,26 +45,26 @@ export async function getWizardData(): Promise<CollectionInfo | undefined> {
     body: JSON.stringify(wizardQuery),
   });
   if (!response.ok) {
-    console.log(await response.text());
     return;
   }
   const openseaResponse: OpenseaResponse = await response.json();
-  console.log(openseaResponse);
   return openseaResponse.data.collection;
 }
 
+function getRarityConfig(rarity: number): RarityConfig {
+  const rarityConfigs: RarityConfig[] = Object.values(rarityRegistry);
+  for (const config of rarityConfigs) {
+    if (config.cutoff / 10000 >= rarity) {
+      return config;
+    }
+  }
+  return rarityRegistry.common;
+}
+
 export function getRarityDescriptor(rarity: number): string {
-  if (rarity === 1 / 10000) {
-    return 'Legendary';
-  }
-  if (rarity < 10 / 10000) {
-    return 'Epic';
-  }
-  if (rarity < 35 / 10000) {
-    return 'Rare';
-  }
-  if (rarity < 115 / 10000) {
-    return 'Uncommon';
-  }
-  return 'Common';
+  return getRarityConfig(rarity).name;
+}
+
+export function getRarityColor(rarity: number): string {
+  return getRarityConfig(rarity).color;
 }

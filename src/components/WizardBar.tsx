@@ -2,21 +2,25 @@ import {
   AppBar,
   Avatar,
   Button,
-  Checkbox,
+  Collapse,
+  Container,
   fade,
-  FormControlLabel,
-  InputBase,
+  IconButton,
   makeStyles,
+  TextField,
   Toolbar,
   Typography,
 } from '@material-ui/core';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
-import SearchIcon from '@material-ui/icons/Search';
+import { Autocomplete } from '@material-ui/lab';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import React, { useState } from 'react';
-import { store } from '../Viewer';
+import { useContext, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
+import WizardFilterOptions from './WizardFilterOptions';
 
 const useStlyes = makeStyles((theme) => ({
   appBarContainer: {
@@ -32,6 +36,10 @@ const useStlyes = makeStyles((theme) => ({
   titleContainer: {
     justifyContent: 'space-between',
     color: '#e1c0b1',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      marginBottom: theme.spacing(1),
+    },
   },
   icon: {
     height: '33px',
@@ -46,81 +54,78 @@ const useStlyes = makeStyles((theme) => ({
     display: 'flex',
   },
   search: {
-    position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.white, 0.15),
     '&:hover': {
       backgroundColor: fade(theme.palette.common.white, 0.25),
     },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto',
-    },
-  },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputRoot: {
-    color: 'inherit',
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
   },
   toolbarContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
   },
   link: {
     textDecoration: 'none',
     color: '#e0decc',
-    cursor: 'pointer',
+    '&:hover': {
+      cursor: 'pointer',
+    },
   },
   accountContainer: {
     display: 'flex',
     alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
+    },
+  },
+  searchContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing(1),
+    },
   },
   avatar: {
     marginLeft: theme.spacing(1),
   },
+  searchBox: {
+    width: '225px',
+  },
+  filterIcon: {
+    marginLeft: theme.spacing(3),
+  },
+  listOptions: {
+    marginLeft: theme.spacing(0.75),
+    marginRight: 'auto',
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      margin: 'auto',
+      paddingTop: theme.spacing(1),
+    },
+  },
+  routerLink: {
+    textDecoration: 'none',
+  },
 }));
 
 const WizardBar = observer((): JSX.Element | null => {
+  const location = useLocation();
+  const store = useContext(StoreContext);
   const classes = useStlyes(viewerTheme);
   if (!store) {
     return null;
   }
   const { ranks, user } = store;
 
-  const [search, setSearch] = useState<string | undefined>();
-  const handleSearch = (e: React.KeyboardEvent) => {
-    if (search) {
-      if (e.key === 'Enter') {
-        ranks.search(search);
-      }
-    } else {
-      ranks.search(undefined);
-    }
-  };
-
   const connect = async (): Promise<void> => {
     await user.connect();
   };
+
+  const [showFilter, setShowFilter] = useState(false);
 
   let wizardCount = 0;
   let avatarImage = undefined;
@@ -151,7 +156,11 @@ const WizardBar = observer((): JSX.Element | null => {
               >
                 {`${user.address?.slice(0, 6)}...${user.address?.slice(user.address.length - 4)}`}
               </Typography>
-              <Typography variant="caption" align="center">{`${wizardCount} wizards`}</Typography>
+              <Typography
+                className={classes.link}
+                variant="caption"
+                onClick={() => window.open(`https://opensea.io/${user.address}`, '_blank')}
+              >{`${wizardCount} wizards`}</Typography>
             </div>
             {hasWizards && <Avatar alt={'Profile Avatar'} src={avatarImage} className={classes.avatar} />}
           </div>
@@ -159,33 +168,63 @@ const WizardBar = observer((): JSX.Element | null => {
       </div>
       <AppBar position="static">
         <Toolbar className={classes.toolbarContainer}>
-          <div>
-            <FormControlLabel
-              control={<Checkbox onClick={ranks.toggleIncludeCount} name="includeTraitCount" />}
-              label="Trait Count"
-            />
-            <FormControlLabel
-              control={<Checkbox onClick={ranks.toggleIncludeName} name="includeName" />}
-              label="Name Rarity"
-            />
+          <div className={classes.listOptions}>
+            <Link to="/" className={classes.routerLink}>
+              <Typography variant="h6" className={classes.link} onClick={() => ranks.setShowUser(false)}>
+                Ranks
+              </Typography>
+            </Link>
+            <Link to="/" className={classes.routerLink}>
+              <Typography
+                variant="h6"
+                className={clsx(classes.filterIcon, classes.link)}
+                onClick={() => ranks.setShowUser(true)}
+              >
+                My Wizards
+              </Typography>
+            </Link>
+            <Link to="/affinities" className={classes.routerLink}>
+              <Typography variant="h6" className={clsx(classes.filterIcon, classes.link)}>
+                Affinities
+              </Typography>
+            </Link>
           </div>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
+          {location.pathname === '/' && (
+            <div className={classes.searchContainer}>
+              <div className={classes.search}>
+                <Autocomplete
+                  id="wizard-filter"
+                  blurOnSelect
+                  freeSolo
+                  options={ranks.searchOptions}
+                  getOptionLabel={(option) => option}
+                  onChange={(_e, val) => ranks.search(val ?? undefined)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Search"
+                      variant="outlined"
+                      size="small"
+                      InputLabelProps={{
+                        style: { color: '#fff' },
+                      }}
+                    />
+                  )}
+                  className={classes.searchBox}
+                />
+              </div>
+              <IconButton color="inherit" onClick={() => setShowFilter(!showFilter)}>
+                <FilterListIcon />
+              </IconButton>
             </div>
-            <InputBase
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyUp={handleSearch}
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </div>
+          )}
         </Toolbar>
       </AppBar>
+      <Container>
+        <Collapse in={showFilter} unmountOnExit>
+          <WizardFilterOptions />
+        </Collapse>
+      </Container>
     </div>
   );
 });
