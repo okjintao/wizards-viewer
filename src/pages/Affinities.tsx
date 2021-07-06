@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   scrollImage: {
-    width: '12%',
+    width: '20%',
     marginRight: theme.spacing(2),
     marginTop: theme.spacing(-8),
     [theme.breakpoints.down('sm')]: {
@@ -74,7 +74,7 @@ const Affinities = observer((): JSX.Element => {
         What is Affinity?
       </Typography>
       <div className={classes.infoContainer}>
-        <img src="/assets/scroll_quill.png" className={classes.scrollImage} />
+        <img src="/assets/affinity_example.png" className={classes.scrollImage} />
         <div>
           <Typography variant="body1" className={classes.textItem}>
             Within the realm of the Forgotten Runes Wizard's Cult there are overarching themes or ideas known as

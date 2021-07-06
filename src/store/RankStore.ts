@@ -64,8 +64,7 @@ export class RankStore {
       if (this.showUser && !userWizards[wizard.idx]) {
         return false;
       }
-      const affinityCountMatch = wizard.affinities[wizard.maxAffinity] === wizard.traitCount - 1;
-      if (this.maxAffinity && !affinityCountMatch) {
+      if (this.maxAffinity && wizard.affinities[wizard.maxAffinity] < 5) {
         return false;
       }
       if (!this.filter) {
