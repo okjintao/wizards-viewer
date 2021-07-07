@@ -1,4 +1,15 @@
-import { AppBar, Avatar, Button, Collapse, Container, makeStyles, Toolbar, Typography } from '@material-ui/core';
+import {
+  AppBar,
+  Avatar,
+  Button,
+  Collapse,
+  Container,
+  IconButton,
+  makeStyles,
+  Toolbar,
+  Typography,
+} from '@material-ui/core';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
@@ -6,8 +17,7 @@ import { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
-import AffinitySelector from './AffninitySelector';
-import SearchBar from './SearchBar';
+import SearchBar, { SearchHandler } from './SearchBar';
 import WizardFilterOptions from './WizardFilterOptions';
 
 const useStlyes = makeStyles((theme) => ({
@@ -76,10 +86,15 @@ const useStlyes = makeStyles((theme) => ({
     [theme.breakpoints.down('sm')]: {
       margin: 'auto',
       paddingTop: theme.spacing(1),
+      flexWrap: 'wrap',
+      justifyContent: 'space-around',
     },
   },
   routerLink: {
     textDecoration: 'none',
+    [theme.breakpoints.down('sm')]: {
+      flexBasis: '50%',
+    },
   },
 }));
 
@@ -87,14 +102,8 @@ const WizardBar = observer((): JSX.Element | null => {
   const location = useLocation();
   const store = useContext(StoreContext);
   const classes = useStlyes(viewerTheme);
-  if (!store) {
-    return null;
-  }
   const { ranks, user, state } = store;
-
-  const connect = async (): Promise<void> => {
-    await user.connect();
-  };
+  const { affinityOccurences, traitMap } = ranks.wizardSummary;
 
   let wizardCount = 0;
   let avatarImage = undefined;
@@ -103,6 +112,37 @@ const WizardBar = observer((): JSX.Element | null => {
     avatarImage = user.wizards[0].image;
   }
   const hasWizards = wizardCount > 0;
+
+  const affinityOptions = Object.entries(affinityOccurences)
+    .sort((a, b) => b[1] - a[1])
+    .map((e) => e[0]);
+
+  const traitReverseLookup = Object.fromEntries(Object.entries(traitMap).map((trait) => [trait[1], trait[0]]));
+  const traitOptions = Object.entries(traitMap)
+    .sort((a, b) => {
+      const [_keyA, valueA] = a;
+      const [_keyB, valueB] = b;
+      const rarityA = ranks.getRarity(valueA);
+      const rarityB = ranks.getRarity(valueB);
+      return rarityA - rarityB;
+    })
+    .map((e) => e[1]);
+
+  const handleTraitSearch: SearchHandler = (_e, val): void => {
+    if (!val) {
+      return;
+    }
+    state.setTrait(Number(traitReverseLookup[val]));
+  };
+
+  const handleAffinitySearch: SearchHandler = (_e, val): void => {
+    if (!val) {
+      return;
+    }
+    const [_affinity, id] = val.split(' ');
+    state.setAffinity(Number(id));
+  };
+
   return (
     <div className={classes.appBarContainer}>
       <div className={clsx(classes.titleContainer, classes.baseContainer)}>
@@ -111,7 +151,7 @@ const WizardBar = observer((): JSX.Element | null => {
           <Typography variant="h4">Forgotten Runes Wizard's Cult</Typography>
         </div>
         {!user.wallet && (
-          <Button variant="contained" color="secondary" startIcon={<FlashOnIcon />} onClick={connect}>
+          <Button variant="contained" color="secondary" startIcon={<FlashOnIcon />} onClick={user.connect}>
             Connect
           </Button>
         )}
@@ -139,12 +179,13 @@ const WizardBar = observer((): JSX.Element | null => {
         <Toolbar className={classes.toolbarContainer}>
           <div className={classes.listOptions}>
             <Link to="/" className={classes.routerLink}>
-              <Typography variant="h6" className={classes.link} onClick={() => ranks.setShowUser(false)}>
+              <Typography align="center" variant="h6" className={classes.link} onClick={() => ranks.setShowUser(false)}>
                 Ranks
               </Typography>
             </Link>
             <Link to="/" className={classes.routerLink}>
               <Typography
+                align="center"
                 variant="h6"
                 className={clsx(classes.filterIcon, classes.link)}
                 onClick={() => ranks.setShowUser(true)}
@@ -153,13 +194,31 @@ const WizardBar = observer((): JSX.Element | null => {
               </Typography>
             </Link>
             <Link to="/affinities" className={classes.routerLink}>
-              <Typography variant="h6" className={clsx(classes.filterIcon, classes.link)}>
+              <Typography align="center" variant="h6" className={clsx(classes.filterIcon, classes.link)}>
                 Affinities
               </Typography>
             </Link>
+            <Link to="/traits" className={classes.routerLink}>
+              <Typography align="center" variant="h6" className={clsx(classes.filterIcon, classes.link)}>
+                Traits
+              </Typography>
+            </Link>
           </div>
-          {location.pathname === '/' && <SearchBar />}
-          {location.pathname === '/affinities' && <AffinitySelector />}
+          {location.pathname === '/' && (
+            <div className={classes.buttonContainer}>
+              <SearchBar options={ranks.searchOptions} handleChange={(_e, val) => ranks.search(val ?? undefined)} />
+              <IconButton color="inherit" onClick={() => state.setShowFilter(!state.showFilter)}>
+                <FilterListIcon />
+              </IconButton>
+            </div>
+          )}
+          {location.pathname === '/affinities' && (
+            <SearchBar
+              options={affinityOptions.map((affinity) => `Affinity ${affinity}`)}
+              handleChange={handleAffinitySearch}
+            />
+          )}
+          {location.pathname === '/traits' && <SearchBar options={traitOptions} handleChange={handleTraitSearch} />}
         </Toolbar>
       </AppBar>
       <Container>
