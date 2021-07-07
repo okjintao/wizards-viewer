@@ -1,9 +1,6 @@
-import { fade, IconButton, makeStyles, TextField } from '@material-ui/core';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import { Autocomplete } from '@material-ui/lab';
+import { fade, makeStyles, TextField } from '@material-ui/core';
+import { Autocomplete, AutocompleteChangeReason } from '@material-ui/lab';
 import { observer } from 'mobx-react-lite';
-import { useContext } from 'react';
-import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
 
 const useStlyes = makeStyles((theme) => ({
@@ -26,10 +23,17 @@ const useStlyes = makeStyles((theme) => ({
   },
 }));
 
-const SearchBar = observer((): JSX.Element => {
+export type SearchHandler = (e: React.ChangeEvent<unknown>, v: string | null, r: AutocompleteChangeReason) => void;
+export interface SearchBarProps {
+  options: string[];
+  placeholder?: string;
+  handleChange?: SearchHandler;
+}
+
+const SearchBar = observer((props: SearchBarProps): JSX.Element => {
   const classes = useStlyes(viewerTheme);
-  const store = useContext(StoreContext);
-  const { ranks, state } = store;
+  const { options, placeholder, handleChange } = props;
+
   return (
     <div className={classes.searchContainer}>
       <div className={classes.search}>
@@ -37,13 +41,13 @@ const SearchBar = observer((): JSX.Element => {
           id="wizard-filter"
           blurOnSelect
           freeSolo
-          options={ranks.searchOptions}
+          options={options}
           getOptionLabel={(option) => option}
-          onChange={(_e, val) => ranks.search(val ?? undefined)}
+          onChange={handleChange}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search"
+              label={placeholder || 'Search'}
               variant="outlined"
               size="small"
               InputLabelProps={{
@@ -54,9 +58,6 @@ const SearchBar = observer((): JSX.Element => {
           className={classes.searchBox}
         />
       </div>
-      <IconButton color="inherit" onClick={() => state.setShowFilter(!state.showFilter)}>
-        <FilterListIcon />
-      </IconButton>
     </div>
   );
 });

@@ -93,7 +93,7 @@ const Affinities = observer((): JSX.Element => {
             {affinityToTraits[state.affinity].map((item) => {
               return (
                 <Paper key={item} className={classes.card}>
-                  <Typography variant="body2">{traitMap[item]}</Typography>
+                  <Typography variant="body1">{traitMap[item]}</Typography>
                 </Paper>
               );
             })}

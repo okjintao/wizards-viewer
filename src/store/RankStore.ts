@@ -57,9 +57,10 @@ export class RankStore {
 
   get wizards(): WizardData[] {
     let userWizards: RankMap = {};
-    if (this.store.user.wizards) {
+    const { wizards } = this.store.user;
+    if (wizards) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userWizards = Object.fromEntries(this.store.user.wizards.map((wizard) => [wizard.idx, wizard.rank!]));
+      userWizards = Object.fromEntries(wizards.map((wizard) => [wizard.idx, wizard.rank!]));
     }
     return this.ranking.filter((wizard) => {
       if (this.showUser && !userWizards[wizard.idx]) {
