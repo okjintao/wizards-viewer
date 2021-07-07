@@ -1,25 +1,13 @@
-import {
-  AppBar,
-  Avatar,
-  Button,
-  Collapse,
-  Container,
-  fade,
-  IconButton,
-  makeStyles,
-  TextField,
-  Toolbar,
-  Typography,
-} from '@material-ui/core';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import { AppBar, Avatar, Button, Collapse, Container, makeStyles, Toolbar, Typography } from '@material-ui/core';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
-import { Autocomplete } from '@material-ui/lab';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
+import AffinitySelector from './AffninitySelector';
+import SearchBar from './SearchBar';
 import WizardFilterOptions from './WizardFilterOptions';
 
 const useStlyes = makeStyles((theme) => ({
@@ -53,13 +41,6 @@ const useStlyes = makeStyles((theme) => ({
     justifyContent: 'center',
     display: 'flex',
   },
-  search: {
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-  },
   toolbarContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -82,18 +63,8 @@ const useStlyes = makeStyles((theme) => ({
       marginBottom: theme.spacing(1),
     },
   },
-  searchContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    [theme.breakpoints.down('sm')]: {
-      marginBottom: theme.spacing(1),
-    },
-  },
   avatar: {
     marginLeft: theme.spacing(1),
-  },
-  searchBox: {
-    width: '225px',
   },
   filterIcon: {
     marginLeft: theme.spacing(3),
@@ -119,13 +90,11 @@ const WizardBar = observer((): JSX.Element | null => {
   if (!store) {
     return null;
   }
-  const { ranks, user } = store;
+  const { ranks, user, state } = store;
 
   const connect = async (): Promise<void> => {
     await user.connect();
   };
-
-  const [showFilter, setShowFilter] = useState(false);
 
   let wizardCount = 0;
   let avatarImage = undefined;
@@ -189,39 +158,12 @@ const WizardBar = observer((): JSX.Element | null => {
               </Typography>
             </Link>
           </div>
-          {location.pathname === '/' && (
-            <div className={classes.searchContainer}>
-              <div className={classes.search}>
-                <Autocomplete
-                  id="wizard-filter"
-                  blurOnSelect
-                  freeSolo
-                  options={ranks.searchOptions}
-                  getOptionLabel={(option) => option}
-                  onChange={(_e, val) => ranks.search(val ?? undefined)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Search"
-                      variant="outlined"
-                      size="small"
-                      InputLabelProps={{
-                        style: { color: '#fff' },
-                      }}
-                    />
-                  )}
-                  className={classes.searchBox}
-                />
-              </div>
-              <IconButton color="inherit" onClick={() => setShowFilter(!showFilter)}>
-                <FilterListIcon />
-              </IconButton>
-            </div>
-          )}
+          {location.pathname === '/' && <SearchBar />}
+          {location.pathname === '/affinities' && <AffinitySelector />}
         </Toolbar>
       </AppBar>
       <Container>
-        <Collapse in={showFilter} unmountOnExit>
+        <Collapse in={state.showFilter} unmountOnExit>
           <WizardFilterOptions />
         </Collapse>
       </Container>
