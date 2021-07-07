@@ -1,6 +1,6 @@
-import { FormControl, InputLabel, makeStyles, MenuItem, Paper, Select, Typography } from '@material-ui/core';
+import { makeStyles, Paper, Typography } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
 
@@ -46,14 +46,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'center',
   },
-  affinityDropdown: {
-    width: '215px',
-  },
   cardContainer: {
     display: 'flex',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    marginTop: theme.spacing(3),
   },
   card: {
     margin: theme.spacing(2),
@@ -64,8 +60,7 @@ const useStyles = makeStyles((theme) => ({
 const Affinities = observer((): JSX.Element => {
   const store = useContext(StoreContext);
   const classes = useStyles(viewerTheme);
-  const affinityOptions = Object.keys(store.ranks.wizardSummary.affinityOccurences);
-  const [affinity, setAffinity] = useState<string | undefined>();
+  const { state } = store;
 
   const { affinityToTraits, traitMap } = store.ranks.wizardSummary;
   return (
@@ -89,28 +84,22 @@ const Affinities = observer((): JSX.Element => {
           </Typography>
         </div>
       </div>
-      <div className={classes.exampleContainer}>
-        <FormControl variant="filled" className={classes.affinityDropdown}>
-          <InputLabel>Affinity Option</InputLabel>
-          <Select onChange={(e) => setAffinity(e.target.value as string)}>
-            {affinityOptions.map((opt, i) => (
-              <MenuItem key={i} value={opt}>
-                Affinity {`${opt}`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
-      <div className={classes.cardContainer}>
-        {affinity &&
-          affinityToTraits[affinity].map((item) => {
-            return (
-              <Paper key={item} className={classes.card}>
-                <Typography variant="body2">{traitMap[item]}</Typography>
-              </Paper>
-            );
-          })}
-      </div>
+      {state.affinity && (
+        <>
+          <Typography variant="h6" align="center">
+            Affinity {state.affinity}
+          </Typography>
+          <div className={classes.cardContainer}>
+            {affinityToTraits[state.affinity].map((item) => {
+              return (
+                <Paper key={item} className={classes.card}>
+                  <Typography variant="body2">{traitMap[item]}</Typography>
+                </Paper>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 });
