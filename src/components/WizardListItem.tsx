@@ -16,7 +16,7 @@ import { useContext } from 'react';
 import { baseUrl, ref } from '../config/constants';
 import { WizardData } from '../interface/wizard-data.interface';
 import { StoreContext } from '../store/StoreContext';
-import { getRarityDescriptor, viewerTheme } from '../viewer.utils';
+import { getAffinityRarityDescriptor, getRarityDescriptor, viewerTheme } from '../viewer.utils';
 import WizardTraits from './WizardTraits';
 
 const useStyles = makeStyles((theme) => ({
@@ -75,18 +75,19 @@ export interface WizardListItemProps {
 }
 
 const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
+  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
   const classes = useStyles();
+  const { wizard } = props;
+
   const store = useContext(StoreContext);
   const { ranks, info } = store;
-  const { wizard } = props;
   const { rank } = wizard;
-  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
 
+  const maxAffinity = wizard.maxAffinity.toFixed();
   const rarestTrait = wizard.traits[0];
   const rarestTraitName = rarestTrait.split(': ')[1];
   const rarestTraitRarity = getRarityDescriptor(ranks.getRarity(rarestTrait));
-  const maxAffinity = Object.entries(wizard.affinities).sort((a, b) => b[1] - a[1])[0][0];
-  const affinityRarity = getRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
+  const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
   const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
   const nameRarity = getRarityDescriptor(ranks.getNameRarity(wizard.nameLength));
 
@@ -140,7 +141,7 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
         </div>
       </ListItem>
       <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
-        <WizardTraits wizard={wizard} affinity={maxAffinity} />
+        <WizardTraits wizard={wizard} />
       </Collapse>
     </>
   );

@@ -51,10 +51,10 @@ export async function getWizardData(): Promise<CollectionInfo | undefined> {
   return openseaResponse.data.collection;
 }
 
-function getRarityConfig(rarity: number): RarityConfig {
+function getRarityConfig(rarity: number, getCutoff: (config: RarityConfig) => number): RarityConfig {
   const rarityConfigs: RarityConfig[] = Object.values(rarityRegistry);
   for (const config of rarityConfigs) {
-    if (config.cutoff / 10000 >= rarity) {
+    if (getCutoff(config) / 10000 >= rarity) {
       return config;
     }
   }
@@ -62,9 +62,13 @@ function getRarityConfig(rarity: number): RarityConfig {
 }
 
 export function getRarityDescriptor(rarity: number): string {
-  return getRarityConfig(rarity).name;
+  return getRarityConfig(rarity, (config) => config.cutoff).name;
+}
+
+export function getAffinityRarityDescriptor(rarity: number): string {
+  return getRarityConfig(rarity, (config) => config.affinityCutoff).name;
 }
 
 export function getRarityColor(rarity: number): string {
-  return getRarityConfig(rarity).color;
+  return getRarityConfig(rarity, (config) => config.cutoff).color;
 }
