@@ -20,11 +20,15 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     maxWidth: '440px',
     padding: theme.spacing(1),
+    backgroundImage: `url(./assets/tower.png)`,
+    backgroundPosition: 'center bottom 60px',
+    backgroundRepeat: 'no-repeat',
   },
   spriteContainer: {
     marginTop: theme.spacing(1),
     height: '150px',
     width: '150px',
+    marginBottom: 'auto',
   },
   spriteImage: {
     position: 'absolute',
@@ -36,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     width: '280px',
     padding: theme.spacing(2),
     color: '#e0decc',
-    maxHeight: '550px',
+    maxHeight: '430px',
     overflow: 'auto',
     '&::-webkit-scrollbar': {
       display: 'none',
@@ -102,7 +106,7 @@ const WizardDisplay = observer((): JSX.Element | null => {
     <div className={classes.wizardDisplay}>
       <div className={classes.spriteContainer}>
         {images.map((image) => (
-          <img src={image} className={clsx(classes.spriteContainer, classes.spriteImage)} />
+          <img key={image} src={image} className={clsx(classes.spriteContainer, classes.spriteImage)} />
         ))}
       </div>
       <Paper className={classes.traitContainer}>
