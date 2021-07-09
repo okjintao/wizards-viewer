@@ -16,7 +16,7 @@ import { useContext } from 'react';
 import { baseUrl, ref } from '../config/constants';
 import { WizardData } from '../interface/wizard-data.interface';
 import { StoreContext } from '../store/StoreContext';
-import { getRarityDescriptor, viewerTheme } from '../viewer.utils';
+import { getAffinityRarityDescriptor, getRarityDescriptor, viewerTheme } from '../viewer.utils';
 import WizardTraits from './WizardTraits';
 
 const useStyles = makeStyles((theme) => ({
@@ -75,20 +75,17 @@ export interface WizardListItemProps {
 }
 
 const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
+  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
   const classes = useStyles();
+  const { wizard } = props;
+
   const store = useContext(StoreContext);
   const { ranks, info } = store;
-  const { wizard } = props;
   const { rank } = wizard;
-  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
 
-  const rarestTrait = wizard.traits[0];
-  const rarestTraitName = rarestTrait.split(': ')[1];
-  const rarestTraitRarity = getRarityDescriptor(ranks.getRarity(rarestTrait));
-  const maxAffinity = Object.entries(wizard.affinities).sort((a, b) => b[1] - a[1])[0][0];
-  const affinityRarity = getRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
+  const maxAffinity = wizard.maxAffinity.toFixed();
+  const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
   const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
-  const nameRarity = getRarityDescriptor(ranks.getNameRarity(wizard.nameLength));
 
   return (
     <>
@@ -109,11 +106,6 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
         </div>
         <div className={classes.baseContainer}>
           <ListItemText
-            primary={`${rarestTraitRarity} Top Trait`}
-            secondary={`${rarestTraitName}`}
-            className={classes.infoItem}
-          />
-          <ListItemText
             primary={`${affinityRarity} Affinity`}
             secondary={`${wizard.affinities[maxAffinity]} / ${wizard.traitCount - 1} traits`}
             className={classes.infoItem}
@@ -125,11 +117,6 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
                 secondary={`${wizard.traitCount} traits`}
                 className={classes.infoItem}
               />
-              <ListItemText
-                primary={`${nameRarity} Name`}
-                secondary={`${wizard.nameLength} part name`}
-                className={classes.infoItem}
-              />
             </>
           )}
           <ListItemAvatar className={classes.avatar}>
@@ -139,9 +126,11 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
           </ListItemAvatar>
         </div>
       </ListItem>
-      <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
-        <WizardTraits wizard={wizard} affinity={maxAffinity} />
-      </Collapse>
+      {isMobile && (
+        <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
+          <WizardTraits wizard={wizard} />
+        </Collapse>
+      )}
     </>
   );
 });

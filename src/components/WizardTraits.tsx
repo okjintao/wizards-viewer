@@ -14,9 +14,14 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#5c64ac',
     display: 'flex',
     justifyContent: 'space-around',
+    flexWrap: 'wrap',
   },
   traitContainer: {
     textAlign: 'center',
+    flexBasis: '50%',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing(2),
+    },
   },
   searchCursor: {
     cursor: 'pointer',
@@ -33,7 +38,6 @@ interface TraitProps {
 
 export interface WizardTraitProps {
   wizard: WizardData;
-  affinity: string;
 }
 
 function WizardTrait(props: TraitProps): JSX.Element {
@@ -54,20 +58,21 @@ function WizardTrait(props: TraitProps): JSX.Element {
 
 export default function WizardTraits(props: WizardTraitProps): JSX.Element {
   const classes = useStyles(viewerTheme);
-  const { wizard, affinity } = props;
+  const { wizard } = props;
   const { ranks } = store;
-  const affinityRarity = ranks.getAffinityRarity(affinity);
-  const affinityOccurrence = ranks.getAffinityOccurence(affinity);
+  const maxAffinity = wizard.maxAffinity.toFixed();
+  const affinityRarity = ranks.getAffinityRarity(maxAffinity);
+  const affinityOccurrence = ranks.getAffinityOccurence(maxAffinity);
   return (
     <Paper className={classes.traitsPaper}>
       <WizardTrait
         descriptor={getRarityDescriptor(affinityRarity)}
         typeDisplay={'Affinity'}
         occurrence={affinityOccurrence}
-        name={affinity}
-        trait={`${affinity} affinity`}
+        name={maxAffinity}
+        trait={`${maxAffinity} affinity`}
       />
-      {wizard.traits.map((trait, j) => {
+      {Object.values(wizard.traits).map((trait, j) => {
         const [type, name] = trait.split(': ');
         const typeDisplay = type.charAt(0).toUpperCase() + type.slice(1);
         const occurrence = ranks.getRarityOccurence(trait);
