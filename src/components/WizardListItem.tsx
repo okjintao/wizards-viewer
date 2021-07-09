@@ -110,15 +110,11 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
             secondary={`${wizard.affinities[maxAffinity]} / ${wizard.traitCount - 1} traits`}
             className={classes.infoItem}
           />
-          {!isMobile && (
-            <>
-              <ListItemText
-                primary={`${traitCountRarity} Trait Count`}
-                secondary={`${wizard.traitCount} traits`}
-                className={classes.infoItem}
-              />
-            </>
-          )}
+          <ListItemText
+            primary={`${traitCountRarity} Trait Count`}
+            secondary={`${wizard.traitCount} traits`}
+            className={classes.infoItem}
+          />
           <ListItemAvatar className={classes.avatar}>
             <IconButton onClick={() => window.open(`${baseUrl}${wizard.idx}${ref}`)}>
               <ExitToAppIcon />
