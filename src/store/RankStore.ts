@@ -20,10 +20,6 @@ export class RankStore {
   constructor(store: RootStore) {
     this.store = store;
     this.wizardSummary = summary as WizardSummary;
-    Object.values(this.wizardSummary.wizards).forEach((wizard) => {
-      wizard.traits = wizard.traits.sort((a, b) => this.getRarity(a) - this.getRarity(b));
-      wizard.image = wizard.image.replace('ipfs://', 'https://ipfs.io/ipfs/');
-    });
     this.ranking = this.evaluateRank();
 
     const rankObeserver = extendObservable(this, {
@@ -77,7 +73,7 @@ export class RankStore {
 
       // match exact words / partials
       const nameMatch = wizard.name.toLowerCase().includes(localFilter);
-      const traitMatch = wizard.traits.some((trait) => trait.toLowerCase().includes(localFilter));
+      const traitMatch = Object.values(wizard.traits).some((trait) => trait.toLowerCase().includes(localFilter));
 
       // match ranking / serial number look ups
       let serialMatch = false;
@@ -140,7 +136,7 @@ export class RankStore {
 
     const traitCount = this.cutoff ?? wizard.traitCount;
     for (let i = 0; i < traitCount; i++) {
-      score *= this.getRarity(wizard.traits[i]);
+      score *= this.getRarity(Object.values(wizard.traits)[i]);
     }
 
     if (this.includeTraitCount) {

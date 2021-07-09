@@ -84,9 +84,6 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
   const { rank } = wizard;
 
   const maxAffinity = wizard.maxAffinity.toFixed();
-  const rarestTrait = wizard.traits[0];
-  const rarestTraitName = rarestTrait.split(': ')[1];
-  const rarestTraitRarity = getRarityDescriptor(ranks.getRarity(rarestTrait));
   const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
   const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
 
@@ -109,11 +106,6 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
         </div>
         <div className={classes.baseContainer}>
           <ListItemText
-            primary={`${rarestTraitRarity} Top Trait`}
-            secondary={`${rarestTraitName}`}
-            className={classes.infoItem}
-          />
-          <ListItemText
             primary={`${affinityRarity} Affinity`}
             secondary={`${wizard.affinities[maxAffinity]} / ${wizard.traitCount - 1} traits`}
             className={classes.infoItem}
@@ -134,9 +126,11 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
           </ListItemAvatar>
         </div>
       </ListItem>
-      <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
-        <WizardTraits wizard={wizard} />
-      </Collapse>
+      {isMobile && (
+        <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
+          <WizardTraits wizard={wizard} />
+        </Collapse>
+      )}
     </>
   );
 });

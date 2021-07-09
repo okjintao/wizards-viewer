@@ -14,9 +14,14 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#5c64ac',
     display: 'flex',
     justifyContent: 'space-around',
+    flexWrap: 'wrap',
   },
   traitContainer: {
     textAlign: 'center',
+    flexBasis: '50%',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing(2),
+    },
   },
   searchCursor: {
     cursor: 'pointer',
@@ -67,7 +72,7 @@ export default function WizardTraits(props: WizardTraitProps): JSX.Element {
         name={maxAffinity}
         trait={`${maxAffinity} affinity`}
       />
-      {wizard.traits.map((trait, j) => {
+      {Object.values(wizard.traits).map((trait, j) => {
         const [type, name] = trait.split(': ');
         const typeDisplay = type.charAt(0).toUpperCase() + type.slice(1);
         const occurrence = ranks.getRarityOccurence(trait);
