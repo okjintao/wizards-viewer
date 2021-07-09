@@ -89,7 +89,6 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
   const rarestTraitRarity = getRarityDescriptor(ranks.getRarity(rarestTrait));
   const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
   const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
-  const nameRarity = getRarityDescriptor(ranks.getNameRarity(wizard.nameLength));
 
   return (
     <>
@@ -124,11 +123,6 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
               <ListItemText
                 primary={`${traitCountRarity} Trait Count`}
                 secondary={`${wizard.traitCount} traits`}
-                className={classes.infoItem}
-              />
-              <ListItemText
-                primary={`${nameRarity} Name`}
-                secondary={`${wizard.nameLength} part name`}
                 className={classes.infoItem}
               />
             </>

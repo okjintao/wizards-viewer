@@ -2,7 +2,6 @@ import { List, makeStyles, TablePagination, useMediaQuery } from '@material-ui/c
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useContext, useEffect, useState } from 'react';
-import Socials from '../components/Socials';
 import WizardListItem from '../components/WizardListItem';
 import { StoreContext } from '../store/StoreContext';
 import { viewerTheme } from '../viewer.utils';
@@ -19,12 +18,15 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'center',
   },
+  wizardDisplay: {
+    backgroundColor: '#af8954',
+  },
 }));
 
 const WizardList = observer(() => {
+  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
   const store = useContext(StoreContext);
   const classes = useStyles(viewerTheme);
-  const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
   const { ranks } = store;
 
   // pagination variables
@@ -39,11 +41,13 @@ const WizardList = observer(() => {
 
   return (
     <div className={classes.itemContainer}>
-      <List dense>
-        {ranks.wizards.slice(start, end).map((wizard) => (
-          <WizardListItem key={wizard.idx} wizard={wizard} />
-        ))}
-      </List>
+      <div className={classes.centerContainer}>
+        <List dense>
+          {ranks.wizards.slice(start, end).map((wizard) => (
+            <WizardListItem key={wizard.idx} wizard={wizard} />
+          ))}
+        </List>
+      </div>
       <div className={clsx(classes.itemContainer, classes.centerContainer)}>
         <TablePagination
           labelRowsPerPage={isMobile ? 'Rows:' : 'Rows per page:'}
@@ -54,9 +58,6 @@ const WizardList = observer(() => {
           onChangePage={(_e, page) => setPage(page)}
           onChangeRowsPerPage={(e) => setPageSize(Number(e.target.value))}
         />
-      </div>
-      <div className={classes.centerContainer}>
-        <Socials />
       </div>
     </div>
   );
