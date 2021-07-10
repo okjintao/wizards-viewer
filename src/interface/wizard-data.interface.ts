@@ -13,4 +13,5 @@ export interface WizardData {
   expanded?: boolean;
   maxAffinity: number;
   affinities: RankMap;
+  affinityWeight?: number;
 }

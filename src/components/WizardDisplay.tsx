@@ -1,10 +1,11 @@
 import { makeStyles, Paper, Typography } from '@material-ui/core';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { WizardData } from '../interface/wizard-data.interface';
 import { StoreContext } from '../store/StoreContext';
 import {
+  getAffinityRarityColor,
   getAffinityRarityDescriptor,
   getRarityColor,
   getRarityDescriptor,
@@ -23,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundImage: `url(./assets/tower.png)`,
     backgroundPosition: 'center bottom 60px',
     backgroundRepeat: 'no-repeat',
+    minHeight: '748px',
   },
   spriteContainer: {
     marginTop: theme.spacing(1),
@@ -41,12 +43,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     color: '#e0decc',
     maxHeight: '430px',
-    overflow: 'auto',
-    '&::-webkit-scrollbar': {
-      display: 'none',
-    },
-    msOverflowStyle: 'none',
-    scrollbarWidth: 'none',
   },
   traitItem: {
     display: 'flex',
@@ -72,21 +68,33 @@ const useStyles = makeStyles((theme) => ({
   rarity: {
     paddingTop: theme.spacing(-0.25),
   },
+  infoContainer: {
+    overflow: 'auto',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+    msOverflowStyle: 'none',
+    scrollbarWidth: 'none',
+  },
 }));
 
 const WizardDisplay = observer((): JSX.Element | null => {
   const classes = useStyles(viewerTheme);
   const store = useContext(StoreContext);
-  const { info, ranks } = store;
+  const { state, ranks } = store;
   const { ranking, wizardSummary } = ranks;
   const { affinityOccurences, totalWizards } = wizardSummary;
 
-  let wizard: WizardData;
-  if (info.expanded) {
-    wizard = ranking[info.expanded - 1];
-  } else {
-    wizard = randomWizard(wizardSummary);
-  }
+  const random = randomWizard(wizardSummary);
+  const [wizard, setWizard] = useState<WizardData>(random);
+  useEffect(() => {
+    if (state.wizard) {
+      setWizard(ranking[state.wizard - 1]);
+    } else {
+      setWizard(random);
+    }
+  }, [state.wizard]);
+
   const images = Object.entries(wizard.traits)
     .filter((entry) => {
       const [_key, value] = entry;
@@ -101,6 +109,9 @@ const WizardDisplay = observer((): JSX.Element | null => {
   const hasAffinities = Object.keys(affinities).length > 0;
   const otherAffinities = Object.keys(wizard.affinities).length - Object.keys(affinities).length;
   const affinityPercentage = (wizard.affinities[wizard.maxAffinity] / (wizard.traitCount - 1)) * 100;
+  const maxAffinityColor = getAffinityRarityColor(ranks.getAffinityRarity(wizard.maxAffinity));
+  const maxAffinityDescriptor = getAffinityRarityDescriptor(ranks.getAffinityRarity(wizard.maxAffinity));
+  const maxAffinityStyle = { color: maxAffinityColor };
 
   return (
     <div className={classes.wizardDisplay}>
@@ -114,115 +125,121 @@ const WizardDisplay = observer((): JSX.Element | null => {
           variant="body1"
           align="center"
           style={rankStyle}
-          className={info.expanded ? classes.section : undefined}
+          className={state.wizard ? classes.section : undefined}
         >
           {wizard.name}
         </Typography>
-        {!info.expanded && (
-          <Typography variant="caption" align="center" className={!info.expanded ? classes.section : undefined}>
+        {!state.wizard && (
+          <Typography variant="caption" align="center" className={!state.wizard ? classes.section : undefined}>
             (Randomly Generated Wizard)
           </Typography>
         )}
-        <div className={clsx(classes.section, classes.flexContainer, classes.rankContainer)}>
-          <div className={classes.rankDisplay}>
-            <Typography variant="caption" align="center">
-              Serial ID
-            </Typography>
-            <Typography variant="caption" align="center">
-              {wizard.idx}
-            </Typography>
+        <div className={classes.infoContainer}>
+          <div className={clsx(classes.section, classes.flexContainer, classes.rankContainer)}>
+            <div className={classes.rankDisplay}>
+              <Typography variant="caption" align="center">
+                Serial ID
+              </Typography>
+              <Typography variant="caption" align="center">
+                {wizard.idx}
+              </Typography>
+            </div>
+            <div className={classes.rankDisplay}>
+              <Typography variant="caption" align="center">
+                Rank
+              </Typography>
+              <Typography variant="caption" align="center">
+                {wizard.rank}
+              </Typography>
+            </div>
+            <div className={classes.rankDisplay}>
+              <Typography variant="caption" align="center">
+                Score
+              </Typography>
+              <Typography variant="caption" align="center">
+                {wizard.score?.toFixed(2)}
+              </Typography>
+            </div>
           </div>
-          <div className={classes.rankDisplay}>
-            <Typography variant="caption" align="center">
-              Rank
-            </Typography>
-            <Typography variant="caption" align="center">
-              {wizard.rank}
-            </Typography>
-          </div>
-          <div className={classes.rankDisplay}>
-            <Typography variant="caption" align="center">
-              Score
-            </Typography>
-            <Typography variant="caption" align="center">
-              {wizard.score}
-            </Typography>
-          </div>
-        </div>
-        <Typography variant="body1" align="center" className={classes.section}>
-          Traits
-        </Typography>
-        <div className={classes.section}>
-          {Object.values(wizard.traits).map((trait, i) => {
-            const traitParts = trait.split(': ');
-            const traitType = traitParts[0];
-            const traitName = traitParts.slice(1).join(': ');
-            const traitRarity = getRarityDescriptor(ranks.getRarity(trait));
-            const traitColor = getRarityColor(ranks.getRarity(trait));
-            const traitStyle = { color: traitColor };
-            const traitCount = ranks.getRarityOccurence(trait);
-            return (
-              <div key={`trait-${i}`} className={classes.traitItem}>
-                <div className={classes.descriptor}>
-                  <Typography variant="body2" align="left">
-                    {traitType.charAt(0).toUpperCase() + traitType.slice(1)} ({traitCount})
-                  </Typography>
-                  <Typography variant="caption" align="left" style={traitStyle} className={classes.rarity}>
-                    {traitRarity}
-                  </Typography>
-                </div>
-                <Typography variant="body2" align="right">
-                  {traitName}
-                </Typography>
-              </div>
-            );
-          })}
-        </div>
-        <Typography variant="body1" align="center" className={classes.section}>
-          {affinityPercentage.toFixed()}% Affinity
-        </Typography>
-        <div className={classes.section}>
-          {hasAffinities &&
-            Object.entries(affinities)
-              .sort((a, b) => {
-                if (a[1] === b[1]) {
-                  return affinityOccurences[a[0]] - affinityOccurences[b[0]];
-                }
-                return b[1] - a[1];
-              })
-              .map((entry) => {
-                const [key, value] = entry;
-                const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(key));
-                const affinityColor = getRarityColor(ranks.getAffinityRarity(key));
-                const affinityStyle = { color: affinityColor };
-                const percentageColor = value === 5 ? '#ec3fa8' : 'inherit';
-                const percentageStyle = { color: percentageColor };
-                return (
-                  <div key={`affinity-${key}`} className={classes.traitItem}>
-                    <div className={classes.descriptor}>
-                      <Typography variant="body2" align="left" style={percentageStyle}>
-                        Affinity {key} ({affinityOccurences[key]})
-                      </Typography>
-                      <Typography variant="caption" align="left" style={affinityStyle}>
-                        {affinityRarity}
-                      </Typography>
-                    </div>
-                    <Typography variant="body2" align="right" style={percentageStyle}>
-                      {value} / {wizard.traitCount - 1} traits
+          <Typography variant="body1" align="center" className={classes.section}>
+            Traits
+          </Typography>
+          <div className={classes.section}>
+            {Object.values(wizard.traits).map((trait, i) => {
+              const traitParts = trait.split(': ');
+              const traitType = traitParts[0];
+              const traitName = traitParts.slice(1).join(': ');
+              const traitRarity = getRarityDescriptor(ranks.getRarity(trait));
+              const traitColor = getRarityColor(ranks.getRarity(trait));
+              const traitStyle = { color: traitColor };
+              const traitCount = ranks.getRarityOccurence(trait);
+              return (
+                <div key={`trait-${i}`} className={classes.traitItem}>
+                  <div className={classes.descriptor}>
+                    <Typography variant="body2" align="left">
+                      {traitType.charAt(0).toUpperCase() + traitType.slice(1)} ({traitCount})
+                    </Typography>
+                    <Typography variant="caption" align="left" style={traitStyle} className={classes.rarity}>
+                      {traitRarity}
                     </Typography>
                   </div>
-                );
-              })}
-          {!hasAffinities && (
-            <Typography variant="body2" align="center" className={classes.section}>
-              0 notable affinities
-            </Typography>
-          )}
-          {otherAffinities > 0 && (
-            <Typography variant="body2" align="center">
-              {otherAffinities} other {otherAffinities > 1 ? 'affinities' : 'affinity'}
-            </Typography>
-          )}
+                  <Typography variant="body2" align="right">
+                    {traitName}
+                  </Typography>
+                </div>
+              );
+            })}
+          </div>
+          <Typography variant="body1" align="center" style={maxAffinityStyle}>
+            {maxAffinityDescriptor} Affinity
+          </Typography>
+          <Typography variant="body2" align="center" className={classes.section}>
+            {affinityPercentage.toFixed()}% Attuned (id: {wizard.maxAffinity})
+          </Typography>
+          <div className={classes.section}>
+            {hasAffinities &&
+              Object.entries(affinities)
+                .sort((a, b) => {
+                  if (a[1] === b[1]) {
+                    return affinityOccurences[a[0]] - affinityOccurences[b[0]];
+                  }
+                  return b[1] - a[1];
+                })
+                .map((entry) => {
+                  const [key, value] = entry;
+                  const affinity = Number(key);
+                  const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(affinity));
+                  const affinityColor = getRarityColor(ranks.getAffinityRarity(affinity));
+                  const affinityStyle = { color: affinityColor };
+                  const percentageColor = value === 5 ? '#ec3fa8' : 'inherit';
+                  const percentageStyle = { color: percentageColor };
+                  return (
+                    <div key={`affinity-${key}`} className={classes.traitItem}>
+                      <div className={classes.descriptor}>
+                        <Typography variant="body2" align="left" style={percentageStyle}>
+                          Affinity {key} ({affinityOccurences[key]})
+                        </Typography>
+                        <Typography variant="caption" align="left" style={affinityStyle}>
+                          {affinityRarity}
+                        </Typography>
+                      </div>
+                      <Typography variant="body2" align="right" style={percentageStyle}>
+                        {value} / {wizard.traitCount - 1} traits
+                      </Typography>
+                    </div>
+                  );
+                })}
+            {!hasAffinities && (
+              <Typography variant="body2" align="center" className={classes.section}>
+                0 notable affinities
+              </Typography>
+            )}
+            {otherAffinities > 0 && (
+              <Typography variant="body2" align="center">
+                {otherAffinities} other {otherAffinities > 1 ? 'affinities' : 'affinity'}
+              </Typography>
+            )}
+          </div>
         </div>
       </Paper>
     </div>

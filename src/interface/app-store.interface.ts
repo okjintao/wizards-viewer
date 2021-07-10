@@ -1,9 +1,9 @@
-import { InfoStore } from '../store/InfoStore';
 import { RankStore } from '../store/RankStore';
+import { StateStore } from '../store/StateStore';
 import { UserStore } from '../store/UserStore';
 
 export interface AppStore {
   ranks: RankStore;
-  info: InfoStore;
+  state: StateStore;
   user: UserStore;
 }

@@ -77,6 +77,10 @@ export function getRarityColor(rarity: number): string {
   return getRarityConfig(rarity, (config) => config.cutoff).color;
 }
 
+export function getAffinityRarityColor(rarity: number): string {
+  return getRarityConfig(rarity, (config) => config.affinityCutoff).color;
+}
+
 export function randomWizard(wizardSummary: WizardSummary): WizardData {
   const wizardType = randomItem([
     'Black Mage',
