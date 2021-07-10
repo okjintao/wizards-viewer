@@ -37,8 +37,8 @@ export class RankStore {
     const affinityRarities = Object.values(wizards).map((wizard) => this.getAffinityRarity(wizard.maxAffinity));
     const primaryRarities = Object.values(wizards).map((wizard) => this.getTraitsRarity(wizard, true));
     const secondaryRarities = Object.values(wizards).map((wizard) => this.getTraitsRarity(wizard, false));
-    const compositeRarities = Object.values(wizards).map(
-      (wizard) => this.getTraitsRarity(wizard, true) * this.getTraitsRarity(wizard, false),
+    const compositeRarities = Object.values(wizards).map((wizard) =>
+      Math.pow(this.getTraitsRarity(wizard, true) * this.getTraitsRarity(wizard, false), 0.01),
     );
     this.scoreStats = {
       minAffinityWeight: Math.min(...weights),
@@ -192,19 +192,18 @@ export class RankStore {
     return evaluated.reduce((total, value) => (total *= value), 1);
   }
 
-
   private scoreFromRange(min: number, max: number, val: number): number {
     const range = max - min;
     const offset = val - min;
     const minPercentile = 0.2;
     const percentile = (offset / range) * 0.8;
     return this.baseScore * (minPercentile + percentile);
-  };
+  }
 
   private reverseScoreFromRange(min: number, max: number, val: number): number {
     const score = this.scoreFromRange(min, max, val);
     return this.baseScore - score + this.baseScore * 0.2;
-  };
+  }
 
   score(wizard: WizardData): number {
     const {
@@ -223,8 +222,8 @@ export class RankStore {
     } = this.scoreStats;
 
     if (!this.custom) {
-      const rarity = Object.values(wizard.traits).reduce((total, t) => total * this.getRarity(t), 1);
-      return this.reverseScoreFromRange(minTraitRarity, maxTraitRarity, rarity);
+      const rarity = Object.values(wizard.traits).reduce((total, t) => (total *= this.getRarity(t)), 1);
+      return this.reverseScoreFromRange(minTraitRarity, maxTraitRarity, Math.pow(rarity, 0.01));
     }
 
     // trait score calculation

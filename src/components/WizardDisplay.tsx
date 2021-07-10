@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundImage: `url(./assets/tower.png)`,
     backgroundPosition: 'center bottom 60px',
     backgroundRepeat: 'no-repeat',
+    minHeight: '748px',
   },
   spriteContainer: {
     marginTop: theme.spacing(1),
