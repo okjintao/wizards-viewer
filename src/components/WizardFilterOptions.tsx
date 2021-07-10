@@ -18,12 +18,12 @@ export default function WizardFilterOptions(): JSX.Element | null {
   return (
     <Paper className={classes.filterPaper}>
       <FormControlLabel
-        control={<Checkbox onClick={ranks.toggleIncludeCount} name="includeTraitCount" size="small" />}
-        label="Trait Count"
+        control={<Checkbox onClick={ranks.toggleCustom} name="includeTraitCount" size="small" />}
+        label="Custom Ranking"
       />
       <FormControlLabel
-        control={<Checkbox onClick={ranks.toggleIncludeName} name="includeName" size="small" />}
-        label="Name Rarity"
+        control={<Checkbox onClick={ranks.toggleMaxPercent} name="includeName" size="small" />}
+        label="Max Percent Affinity"
       />
       <FormControlLabel
         control={<Checkbox onClick={ranks.toggleMaxAffinity} name="includeName" size="small" />}

@@ -96,6 +96,9 @@ const useStlyes = makeStyles((theme) => ({
       flexBasis: '50%',
     },
   },
+  filterButton: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
 const WizardBar = observer((): JSX.Element | null => {
@@ -207,7 +210,7 @@ const WizardBar = observer((): JSX.Element | null => {
           {location.pathname === '/' && (
             <div className={classes.buttonContainer}>
               <SearchBar options={ranks.searchOptions} handleChange={(_e, val) => ranks.search(val ?? undefined)} />
-              <IconButton color="inherit" onClick={() => state.setShowFilter(!state.showFilter)}>
+              <IconButton color="inherit" onClick={() => state.setShowFilter(!state.showFilter)} className={classes.filterButton}>
                 <FilterListIcon />
               </IconButton>
             </div>

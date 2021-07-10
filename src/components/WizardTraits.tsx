@@ -61,8 +61,8 @@ export default function WizardTraits(props: WizardTraitProps): JSX.Element {
   const { wizard } = props;
   const { ranks } = store;
   const maxAffinity = wizard.maxAffinity.toFixed();
-  const affinityRarity = ranks.getAffinityRarity(maxAffinity);
-  const affinityOccurrence = ranks.getAffinityOccurence(maxAffinity);
+  const affinityRarity = ranks.getAffinityRarity(wizard.maxAffinity);
+  const affinityOccurrence = ranks.getAffinityOccurence(wizard.maxAffinity);
   return (
     <Paper className={classes.traitsPaper}>
       <WizardTrait

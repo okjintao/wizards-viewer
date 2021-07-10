@@ -80,11 +80,11 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
   const { wizard } = props;
 
   const store = useContext(StoreContext);
-  const { ranks, info } = store;
+  const { ranks, state } = store;
   const { rank } = wizard;
 
   const maxAffinity = wizard.maxAffinity.toFixed();
-  const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(maxAffinity));
+  const affinityRarity = getAffinityRarityDescriptor(ranks.getAffinityRarity(wizard.maxAffinity));
   const traitCountRarity = getRarityDescriptor(ranks.getCountRarity(wizard.traitCount));
 
   return (
@@ -95,7 +95,7 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
         button
         component={Paper}
         className={classes.wizardListItem}
-        onClick={() => info.setExpanded(rank)}
+        onClick={() => state.setWizard(rank)}
       >
         <div className={clsx(classes.baseContainer, classes.wizardContainer)}>
           <ListItemText primary={`${rank}.`} className={classes.rank} />
@@ -123,7 +123,7 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
         </div>
       </ListItem>
       {isMobile && (
-        <Collapse key={`collapse-${wizard.rank}`} in={info.expanded === rank} unmountOnExit>
+        <Collapse key={`collapse-${wizard.rank}`} in={state.wizard === rank} unmountOnExit>
           <WizardTraits wizard={wizard} />
         </Collapse>
       )}

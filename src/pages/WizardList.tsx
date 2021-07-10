@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   wizardList: {
     justifyContent: 'center',
   },
+  list: {
+    flexGrow: 2,
+  },
 }));
 
 const WizardList = observer(() => {
@@ -49,7 +52,7 @@ const WizardList = observer(() => {
   return (
     <div className={classes.itemContainer}>
       <div className={classes.flexContainer}>
-        <List dense>
+        <List dense className={classes.list}>
           {ranks.wizards.slice(start, end).map((wizard) => (
             <WizardListItem key={wizard.idx} wizard={wizard} />
           ))}
