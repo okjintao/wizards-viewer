@@ -2,15 +2,12 @@ import { action, extendObservable, observe } from 'mobx';
 import { RankMap } from '../interface/rank-map.interface';
 import { ScoreStats } from '../interface/score-stats.interface';
 import { WizardData } from '../interface/wizard-data.interface';
-import { WizardSummary } from '../interface/wizard-summary.interface';
-import summary from '../wizard-summary.json';
 import { RootStore } from './RootStore';
+import { WizardStore } from './WizardStore';
 
-export class RankStore {
-  private store: RootStore;
+export class RankStore extends WizardStore {
   private baseScore = 1000;
   private scoreStats: ScoreStats;
-  public wizardSummary: WizardSummary;
   public ranking: WizardData[];
   public custom = false;
   public isSorting = false;
@@ -21,23 +18,20 @@ export class RankStore {
   public filter?: string;
 
   constructor(store: RootStore) {
-    this.store = store;
-    this.wizardSummary = summary as WizardSummary;
-
-    const { wizards, traitOccurences, totalWizards } = this.wizardSummary;
-    Object.entries(wizards).forEach((entry) => {
+    super(store);
+    Object.entries(this.wizards).forEach((entry) => {
       const [id, wizard] = entry;
-      this.wizardSummary.wizards[id].affinityWeight = this.getAffinityWeight(wizard);
+      this.wizards[id].affinityWeight = this.getAffinityWeight(wizard);
     });
-    const weights = Object.values(wizards)
+    const weights = Object.values(this.wizards)
       .map((wizard) => wizard.affinityWeight)
       .filter((val): val is number => !!val);
 
-    const counts = Object.values(traitOccurences).map((count) => count / totalWizards);
-    const affinityRarities = Object.values(wizards).map((wizard) => this.getAffinityRarity(wizard.maxAffinity));
-    const primaryRarities = Object.values(wizards).map((wizard) => this.getTraitsRarity(wizard, true));
-    const secondaryRarities = Object.values(wizards).map((wizard) => this.getTraitsRarity(wizard, false));
-    const compositeRarities = Object.values(wizards).map((wizard) =>
+    const counts = Object.values(this.traitOccurences).map((count) => count / this.totalWizards);
+    const affinityRarities = Object.values(this.wizards).map((wizard) => this.getAffinityRarity(wizard.maxAffinity));
+    const primaryRarities = Object.values(this.wizards).map((wizard) => this.getTraitsRarity(wizard, true));
+    const secondaryRarities = Object.values(this.wizards).map((wizard) => this.getTraitsRarity(wizard, false));
+    const compositeRarities = Object.values(this.wizards).map((wizard) =>
       Math.pow(this.getTraitsRarity(wizard, true) * this.getTraitsRarity(wizard, false), 0.01),
     );
     this.scoreStats = {
@@ -78,22 +72,21 @@ export class RankStore {
   }
 
   get searchOptions(): string[] {
-    const traits = Object.keys(this.wizardSummary.traitOccurences);
-    const traitCounts = Object.keys(this.wizardSummary.traitCounts).map((key) => `${key} traits`);
-    const nameLengths = Object.keys(this.wizardSummary.nameLengths).map((key) => `${key} part name`);
-    const affinityCounts = Object.keys(this.wizardSummary.affinityOccurences).map((key) => `${key} affinity`);
-    return [...traits, ...traitCounts, ...nameLengths, ...affinityCounts];
+    const traits = Object.keys(this.traitOccurences);
+    const traitCounts = Object.keys(this.traitCounts).map((key) => `${key} traits`);
+    const affinityCounts = Object.keys(this.affinityOccurences).map((key) => `${key} affinity`);
+    return [...traits, ...traitCounts, ...affinityCounts];
   }
 
-  get wizards(): WizardData[] {
+  get display(): WizardData[] {
     let userWizards: RankMap = {};
     const { wizards } = this.store.user;
     if (wizards) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userWizards = Object.fromEntries(wizards.map((wizard) => [wizard.idx, wizard.rank!]));
+      userWizards = Object.fromEntries(wizards.map((wizard) => [wizard.id, wizard.rank!]));
     }
     return this.ranking.filter((wizard) => {
-      if (this.showUser && !userWizards[wizard.idx]) {
+      if (this.showUser && !userWizards[wizard.id]) {
         return false;
       }
       const affinityCount = wizard.affinities[wizard.maxAffinity];
@@ -118,7 +111,7 @@ export class RankStore {
       let rankMatch = false;
       if (!isNaN(parseFloat(localFilter))) {
         const numericFilter = Number(localFilter);
-        serialMatch = wizard.idx === numericFilter;
+        serialMatch = Number(wizard.id) === numericFilter;
         rankMatch = wizard.rank === numericFilter;
       }
 
@@ -128,15 +121,6 @@ export class RankStore {
         const [traitCount, maybeTraits] = localFilter.split(' ');
         if (!isNaN(parseFloat(traitCount)) && maybeTraits.toLowerCase() === 'traits') {
           traitCountMatches = wizard.traitCount === Number(traitCount);
-        }
-      } catch {}
-
-      // match name length look up
-      let nameLengthMatches = false;
-      try {
-        const maybeNameSearch = localFilter.split(' ');
-        if (!isNaN(parseFloat(maybeNameSearch[0])) && maybeNameSearch.slice(1).join(' ') === 'part name') {
-          nameLengthMatches = wizard.nameLength === Number(maybeNameSearch[0]);
         }
       } catch {}
 
@@ -153,14 +137,12 @@ export class RankStore {
         }
       } catch {}
 
-      return (
-        nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || nameLengthMatches || affinityMatches
-      );
+      return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches;
     });
   }
 
   evaluateRank(wizards?: WizardData[]): WizardData[] {
-    return Object.values(wizards ?? this.wizardSummary.wizards)
+    return Object.values(wizards ?? this.wizards)
       .slice()
       .sort((a, b) => this.score(b) - this.score(a))
       .map((w, i) => {
@@ -251,27 +233,23 @@ export class RankStore {
   }
 
   getRarity(trait: string): number {
-    return this.getRarityOccurence(trait) / this.wizardSummary.totalWizards;
+    return this.getRarityOccurence(trait) / this.totalWizards;
   }
 
   getRarityOccurence(trait: string) {
-    return this.wizardSummary.traitOccurences[trait];
+    return this.traitOccurences[trait];
   }
 
   getCountRarity(count: number): number {
-    return this.wizardSummary.traitCounts[count] / this.wizardSummary.totalWizards;
-  }
-
-  getNameRarity(length: number): number {
-    return this.wizardSummary.nameLengths[length] / this.wizardSummary.totalWizards;
+    return this.traitCounts[count] / this.totalWizards;
   }
 
   getAffinityOccurence(affinity: number) {
-    return this.wizardSummary.affinityOccurences[affinity.toString()];
+    return this.affinityOccurences[affinity.toString()];
   }
 
   getAffinityRarity(affinity: number): number {
-    return this.getAffinityOccurence(affinity) / this.wizardSummary.totalWizards;
+    return this.getAffinityOccurence(affinity) / this.totalWizards;
   }
 
   toggleCustom = action(() => {

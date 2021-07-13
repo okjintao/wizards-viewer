@@ -53,8 +53,8 @@ const WizardList = observer(() => {
     <div className={classes.itemContainer}>
       <div className={classes.flexContainer}>
         <List dense className={classes.list}>
-          {ranks.wizards.slice(start, end).map((wizard) => (
-            <WizardListItem key={wizard.idx} wizard={wizard} />
+          {ranks.display.slice(start, end).map((wizard) => (
+            <WizardListItem key={wizard.id} wizard={wizard} />
           ))}
         </List>
         {!isMobile && <WizardDisplay />}
@@ -63,7 +63,7 @@ const WizardList = observer(() => {
         <TablePagination
           labelRowsPerPage={isMobile ? 'Rows:' : 'Rows per page:'}
           component="div"
-          count={ranks.wizards.length}
+          count={ranks.display.length}
           page={page}
           rowsPerPage={pageSize}
           rowsPerPageOptions={[12, 25]}

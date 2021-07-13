@@ -3,8 +3,7 @@ import { TraitMap } from './trait-map.interface';
 
 export interface WizardData {
   name: string;
-  idx: number;
-  nameLength: number;
+  id: string;
   traits: TraitMap;
   traitCount: number;
   image: string;

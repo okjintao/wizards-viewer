@@ -43,7 +43,7 @@ export class UserStore {
         this.collection = wizardIds.map((id) => Number(id.toString()));
         const collection = wizardIds.map((id) => id.toString());
         this.wizards = collection
-          .map((id) => this.store.ranks.wizardSummary.wizards[id])
+          .map((id) => this.store.ranks.wizards[id])
           .sort((a, b) => {
             if (!a.rank || !b.rank) {
               return 0;
