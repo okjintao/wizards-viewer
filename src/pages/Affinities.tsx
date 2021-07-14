@@ -63,8 +63,6 @@ const Affinities = observer((): JSX.Element => {
   const { state } = store;
 
   const { affinityToTraits, traitMap } = store.ranks;
-  console.log(affinityToTraits);
-  console.log(state.affinity && affinityToTraits[state.affinity]);
   return (
     <div className={classes.affinityContainer}>
       <Typography variant="h4" align="center">
