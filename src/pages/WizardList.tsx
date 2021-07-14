@@ -37,7 +37,7 @@ const WizardList = observer(() => {
   const isMobile = useMediaQuery(viewerTheme.breakpoints.down('sm'));
   const store = useContext(StoreContext);
   const classes = useStyles(viewerTheme);
-  const { ranks } = store;
+  const { ranks, user } = store;
 
   // pagination variables
   const [page, setPage] = useState(0);
@@ -49,12 +49,13 @@ const WizardList = observer(() => {
     setPage(0);
   }, [ranks.showUser]);
 
+  const userWizards = user.wizards?.length ?? 0;
   return (
     <div className={classes.itemContainer}>
       <div className={classes.flexContainer}>
         <List dense className={classes.list}>
-          {ranks.wizards.slice(start, end).map((wizard) => (
-            <WizardListItem key={wizard.idx} wizard={wizard} />
+          {ranks.display(start, end).map((wizard) => (
+            <WizardListItem key={wizard.id} wizard={wizard} />
           ))}
         </List>
         {!isMobile && <WizardDisplay />}
@@ -63,7 +64,7 @@ const WizardList = observer(() => {
         <TablePagination
           labelRowsPerPage={isMobile ? 'Rows:' : 'Rows per page:'}
           component="div"
-          count={ranks.wizards.length}
+          count={ranks.showUser ? userWizards : ranks.totalWizards}
           page={page}
           rowsPerPage={pageSize}
           rowsPerPageOptions={[12, 25]}

@@ -9,7 +9,6 @@ import {
   getAffinityRarityDescriptor,
   getRarityColor,
   getRarityDescriptor,
-  randomWizard,
   viewerTheme,
 } from '../viewer.utils';
 
@@ -82,10 +81,9 @@ const WizardDisplay = observer((): JSX.Element | null => {
   const classes = useStyles(viewerTheme);
   const store = useContext(StoreContext);
   const { state, ranks } = store;
-  const { ranking, wizardSummary } = ranks;
-  const { affinityOccurences, totalWizards } = wizardSummary;
+  const { ranking, totalWizards, affinityOccurences } = ranks;
 
-  const random = randomWizard(wizardSummary);
+  const random = ranks.randomWizard();
   const [wizard, setWizard] = useState<WizardData>(random);
   useEffect(() => {
     if (state.wizard) {
@@ -102,7 +100,7 @@ const WizardDisplay = observer((): JSX.Element | null => {
       return traitType !== 'background';
     })
     .map((e) => `/assets/traits/${e[0]}.png`);
-  const rank = wizard.rank || wizard.idx;
+  const rank = wizard.rank || Number(wizard.id);
   const rankStyle = { color: getRarityColor(rank / totalWizards) };
 
   const affinities = Object.fromEntries(Object.entries(wizard.affinities).filter((e) => e[1] >= 3));
@@ -141,7 +139,7 @@ const WizardDisplay = observer((): JSX.Element | null => {
                 Serial ID
               </Typography>
               <Typography variant="caption" align="center">
-                {wizard.idx}
+                {wizard.id}
               </Typography>
             </div>
             <div className={classes.rankDisplay}>

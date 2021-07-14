@@ -5,7 +5,6 @@ import { TraitMap } from './trait-map.interface';
 import { WizardMap } from './wizard-map.interface';
 
 export interface WizardSummary {
-  nameLengths: FrequencyMap;
   traitCounts: FrequencyMap;
   traitOccurences: FrequencyMap;
   affinityOccurences: FrequencyMap;

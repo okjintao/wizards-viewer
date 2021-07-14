@@ -102,7 +102,7 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
           <ListItemAvatar>
             <Avatar alt={`${wizard.name} Avatar`} src={wizard.image} />
           </ListItemAvatar>
-          <ListItemText primary={wizard.name} secondary={`Serial: ${wizard.idx}`} />
+          <ListItemText primary={wizard.name} secondary={`Serial: ${wizard.id}`} />
         </div>
         <div className={classes.baseContainer}>
           <ListItemText
@@ -116,7 +116,7 @@ const WizardListItem = observer((props: WizardListItemProps): JSX.Element => {
             className={classes.infoItem}
           />
           <ListItemAvatar className={classes.avatar}>
-            <IconButton onClick={() => window.open(`${baseUrl}${wizard.idx}${ref}`)}>
+            <IconButton onClick={() => window.open(`${baseUrl}${wizard.id}${ref}`)}>
               <ExitToAppIcon />
             </IconButton>
           </ListItemAvatar>

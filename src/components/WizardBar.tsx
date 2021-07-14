@@ -106,7 +106,7 @@ const WizardBar = observer((): JSX.Element | null => {
   const store = useContext(StoreContext);
   const classes = useStlyes(viewerTheme);
   const { ranks, user, state } = store;
-  const { affinityOccurences, traitMap } = ranks.wizardSummary;
+  const { affinityOccurences, traitMap } = ranks;
 
   let wizardCount = 0;
   let avatarImage = undefined;

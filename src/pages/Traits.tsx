@@ -58,7 +58,7 @@ const Traits = observer((): JSX.Element => {
   const store = useContext(StoreContext);
   const classes = useStyles(viewerTheme);
   const { state, ranks } = store;
-  const { traitsToAffinity, traitMap } = ranks.wizardSummary;
+  const { traitsToAffinity, traitMap } = ranks;
   return (
     <div className={classes.affinityContainer}>
       <Typography variant="h4" align="center">
