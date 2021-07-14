@@ -72,11 +72,12 @@ export default function WizardTraits(props: WizardTraitProps): JSX.Element {
         name={maxAffinity}
         trait={`${maxAffinity} affinity`}
       />
-      {Object.values(wizard.traits).map((trait, j) => {
+      {Object.entries(wizard.traits).map((entry, j) => {
+        const [id, trait] = entry;
         const [type, name] = trait.split(': ');
         const typeDisplay = type.charAt(0).toUpperCase() + type.slice(1);
         const occurrence = ranks.getRarityOccurence(trait);
-        const rarity = ranks.getRarity(trait);
+        const rarity = ranks.getRarity(id);
         const descriptor = getRarityDescriptor(rarity);
         return (
           <WizardTrait

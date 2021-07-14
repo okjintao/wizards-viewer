@@ -17,7 +17,13 @@ export class StateStore {
 
   setShowFilter = action((showFilter: boolean) => (this.showFilter = showFilter));
 
-  setWizard = action((wizard?: number) => (this.wizard = wizard));
+  setWizard = action((wizard?: number) => {
+    if (this.wizard === wizard) {
+      this.wizard = undefined;
+    } else {
+      this.wizard = wizard;
+    }
+  });
 
   setAffinity = action((affinity: number) => (this.affinity = affinity));
 
