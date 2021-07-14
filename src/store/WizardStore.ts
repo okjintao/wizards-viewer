@@ -65,6 +65,7 @@ export class WizardStore {
           traitAffinities.forEach((a) => this.count(affinityOccurences, a));
         }
       });
+      wizard.traits = wizard.traits.filter((t) => t !== 7777);
       this.count(traitCounts, wizard.traits.length);
     });
 

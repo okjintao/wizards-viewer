@@ -1,5 +1,4 @@
-import { action, extendObservable, observe } from 'mobx';
-import { RankMap } from '../interface/rank-map.interface';
+import { action, extendObservable, IObjectDidChange, observe } from 'mobx';
 import { ScoreStats } from '../interface/score-stats.interface';
 import { WizardData } from '../interface/wizard-data.interface';
 import { RootStore } from './RootStore';
@@ -14,7 +13,6 @@ export class RankStore extends WizardStore {
   public showUser = false;
   public maxAffinity = false;
   public maxPercent = false;
-  public cutoff?: number;
   public filter?: string;
 
   constructor(store: RootStore) {
@@ -51,23 +49,20 @@ export class RankStore extends WizardStore {
     this.ranking = this.evaluateRank();
 
     const rankObeserver = extendObservable(this, {
-      ranking: this.ranking,
       custom: this.custom,
-      cutoff: this.cutoff,
       filter: this.filter,
       showUser: this.showUser,
       maxAffinity: this.maxAffinity,
       maxPercent: this.maxPercent,
     });
 
-    observe(rankObeserver, (_change) => {
-      if (this.isSorting) {
-        return;
+    observe(rankObeserver, (change: IObjectDidChange) => {
+      if (change.name !== 'showUser') {
+        this.isSorting = true;
+        this.ranking = this.evaluateRank();
+        this.store.user.wizards = this.evaluateRank(this.store.user.wizards);
+        this.isSorting = false;
       }
-      this.isSorting = true;
-      this.ranking = this.evaluateRank();
-      this.store.user.wizards = this.evaluateRank(this.store.user.wizards);
-      this.isSorting = false;
     });
   }
 
@@ -78,17 +73,15 @@ export class RankStore extends WizardStore {
     return [...traits, ...traitCounts, ...affinityCounts];
   }
 
-  get display(): WizardData[] {
-    let userWizards: RankMap = {};
+  display(start: number, end: number): WizardData[] {
+    let displayList: WizardData[] = [];
     const { wizards } = this.store.user;
-    if (wizards) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userWizards = Object.fromEntries(wizards.map((wizard) => [wizard.id, wizard.rank!]));
+    if (this.showUser) {
+      displayList = wizards ? wizards : [];
+    } else {
+      displayList = this.ranking;
     }
-    return this.ranking.filter((wizard) => {
-      if (this.showUser && !userWizards[wizard.id]) {
-        return false;
-      }
+    return displayList.slice(start, end).filter((wizard) => {
       const affinityCount = wizard.affinities[wizard.maxAffinity];
       if (this.maxAffinity && affinityCount < 5) {
         return false;
@@ -162,7 +155,7 @@ export class RankStore extends WizardStore {
   }
 
   private getTraitsRarity(wizard: WizardData, primary: boolean): number {
-    const traits = Object.values(wizard.traits)
+    const traits = Object.keys(wizard.traits)
       .map((trait) => this.getRarity(trait))
       .sort((a, b) => a - b);
     let evaluated: number[] = [];
@@ -204,7 +197,7 @@ export class RankStore extends WizardStore {
     } = this.scoreStats;
 
     if (!this.custom) {
-      const rarity = Object.values(wizard.traits).reduce((total, t) => (total *= this.getRarity(t)), 1);
+      const rarity = Object.keys(wizard.traits).reduce((total, t) => (total *= this.getRarity(t)), 1);
       return this.reverseScoreFromRange(minTraitRarity, maxTraitRarity, Math.pow(rarity, 0.01));
     }
 
@@ -274,6 +267,9 @@ export class RankStore extends WizardStore {
   });
 
   setShowUser = action((showUser: boolean) => {
+    if (this.showUser === showUser) {
+      return;
+    }
     this.showUser = showUser;
     this.search(undefined);
   });
