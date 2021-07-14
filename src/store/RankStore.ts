@@ -60,7 +60,9 @@ export class RankStore extends WizardStore {
       if (change.name !== 'showUser') {
         this.isSorting = true;
         this.ranking = this.evaluateRank();
-        this.store.user.wizards = this.evaluateRank(this.store.user.wizards);
+        const wizards = this.store.user.wizards ?? [];
+        const userWizards = new Set(wizards.map((wizard) => wizard.id));
+        this.store.user.wizards = this.ranking.filter((wizard) => userWizards.has(wizard.id));
         this.isSorting = false;
       }
     });
