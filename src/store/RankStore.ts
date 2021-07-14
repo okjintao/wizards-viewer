@@ -69,7 +69,9 @@ export class RankStore extends WizardStore {
   }
 
   get searchOptions(): string[] {
-    const traits = Object.keys(this.traitOccurences);
+    const traits = Object.entries(this.traitMap)
+      .filter((trait) => this.traitMap[trait[0]])
+      .map((e) => e[1]);
     const traitCounts = Object.keys(this.traitCounts).map((key) => `${key} traits`);
     const affinityCounts = Object.keys(this.affinityOccurences).map((key) => `${key} affinity`);
     return [...traits, ...traitCounts, ...affinityCounts];
@@ -83,57 +85,59 @@ export class RankStore extends WizardStore {
     } else {
       displayList = this.ranking;
     }
-    return displayList.slice(start, end).filter((wizard) => {
-      const affinityCount = wizard.affinities[wizard.maxAffinity];
-      if (this.maxAffinity && affinityCount < 5) {
-        return false;
-      }
-      if (this.maxPercent && affinityCount < Object.keys(wizard.traits).length - 1) {
-        return false;
-      }
-      if (!this.filter) {
-        return true;
-      }
-
-      const localFilter = this.filter.toLowerCase();
-
-      // match exact words / partials
-      const nameMatch = wizard.name.toLowerCase().includes(localFilter);
-      const traitMatch = Object.values(wizard.traits).some((trait) => trait.toLowerCase().includes(localFilter));
-
-      // match ranking / serial number look ups
-      let serialMatch = false;
-      let rankMatch = false;
-      if (!isNaN(parseFloat(localFilter))) {
-        const numericFilter = Number(localFilter);
-        serialMatch = Number(wizard.id) === numericFilter;
-        rankMatch = wizard.rank === numericFilter;
-      }
-
-      // match trait count look up
-      let traitCountMatches = false;
-      try {
-        const [traitCount, maybeTraits] = localFilter.split(' ');
-        if (!isNaN(parseFloat(traitCount)) && maybeTraits.toLowerCase() === 'traits') {
-          traitCountMatches = wizard.traitCount === Number(traitCount);
+    return displayList
+      .filter((wizard) => {
+        const affinityCount = wizard.affinities[wizard.maxAffinity];
+        if (this.maxAffinity && affinityCount < 5) {
+          return false;
         }
-      } catch {}
+        if (this.maxPercent && affinityCount < Object.keys(wizard.traits).length - 1) {
+          return false;
+        }
+        if (!this.filter) {
+          return true;
+        }
 
-      // match name length look up
-      let affinityMatches = false;
-      try {
-        const maybeAffinitySearch = localFilter.split(' ');
-        if (!isNaN(parseFloat(maybeAffinitySearch[0])) && maybeAffinitySearch.slice(1).join(' ') === 'affinity') {
-          const numericAffinity = Number(maybeAffinitySearch[0]);
-          affinityMatches = wizard.maxAffinity === numericAffinity;
-          if (!affinityMatches) {
-            affinityMatches = Object.keys(wizard.affinities).some((key) => Number(key) === numericAffinity);
+        const localFilter = this.filter;
+
+        // match exact words / partials
+        const nameMatch = wizard.name.toLowerCase().includes(localFilter);
+        const traitMatch = Object.values(wizard.traits).some((trait) => trait.includes(localFilter));
+
+        // match ranking / serial number look ups
+        let serialMatch = false;
+        let rankMatch = false;
+        if (!isNaN(parseFloat(localFilter))) {
+          const numericFilter = Number(localFilter);
+          serialMatch = Number(wizard.id) === numericFilter;
+          rankMatch = wizard.rank === numericFilter;
+        }
+
+        // match trait count look up
+        let traitCountMatches = false;
+        try {
+          const [traitCount, maybeTraits] = localFilter.split(' ');
+          if (!isNaN(parseFloat(traitCount)) && maybeTraits.toLowerCase() === 'traits') {
+            traitCountMatches = wizard.traitCount === Number(traitCount);
           }
-        }
-      } catch {}
+        } catch {}
 
-      return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches;
-    });
+        // match name length look up
+        let affinityMatches = false;
+        try {
+          const maybeAffinitySearch = localFilter.split(' ');
+          if (!isNaN(parseFloat(maybeAffinitySearch[0])) && maybeAffinitySearch.slice(1).join(' ') === 'affinity') {
+            const numericAffinity = Number(maybeAffinitySearch[0]);
+            affinityMatches = wizard.maxAffinity === numericAffinity;
+            if (!affinityMatches) {
+              affinityMatches = Object.keys(wizard.affinities).some((key) => Number(key) === numericAffinity);
+            }
+          }
+        } catch {}
+
+        return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches;
+      })
+      .slice(start, end);
   }
 
   evaluateRank(wizards?: WizardData[]): WizardData[] {

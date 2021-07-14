@@ -28,11 +28,20 @@ export interface SearchBarProps {
   options: string[];
   placeholder?: string;
   handleChange?: SearchHandler;
+  transformOption?: (option: string) => string;
 }
 
 const SearchBar = observer((props: SearchBarProps): JSX.Element => {
   const classes = useStlyes(viewerTheme);
-  const { options, placeholder, handleChange } = props;
+  const { options, placeholder, handleChange, transformOption } = props;
+
+  const optionLabelFallback = (option: string): string => {
+    let result = option;
+    if (transformOption) {
+      result = transformOption(option);
+    }
+    return result ?? option;
+  };
 
   return (
     <div className={classes.searchContainer}>
@@ -42,7 +51,7 @@ const SearchBar = observer((props: SearchBarProps): JSX.Element => {
           blurOnSelect
           freeSolo
           options={options}
-          getOptionLabel={(option) => option}
+          getOptionLabel={optionLabelFallback}
           onChange={handleChange}
           renderInput={(params) => (
             <TextField
