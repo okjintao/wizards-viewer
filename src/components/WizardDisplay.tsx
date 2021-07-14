@@ -163,14 +163,15 @@ const WizardDisplay = observer((): JSX.Element | null => {
             Traits
           </Typography>
           <div className={classes.section}>
-            {Object.values(wizard.traits).map((trait, i) => {
+            {Object.entries(wizard.traits).map((entry, i) => {
+              const [id, trait] = entry;
               const traitParts = trait.split(': ');
               const traitType = traitParts[0];
               const traitName = traitParts.slice(1).join(': ');
-              const traitRarity = getRarityDescriptor(ranks.getRarity(trait));
-              const traitColor = getRarityColor(ranks.getRarity(trait));
+              const traitRarity = getRarityDescriptor(ranks.getRarity(id));
+              const traitColor = getRarityColor(ranks.getRarity(id));
               const traitStyle = { color: traitColor };
-              const traitCount = ranks.getRarityOccurence(trait);
+              const traitCount = ranks.getRarityOccurence(id);
               return (
                 <div key={`trait-${i}`} className={classes.traitItem}>
                   <div className={classes.descriptor}>
