@@ -101,7 +101,7 @@ const WizardDisplay = observer((): JSX.Element | null => {
     })
     .map((e) => `/assets/traits/${e[0]}.png`);
   const rank = wizard.rank || Number(wizard.id);
-  const rankStyle = { color: getRarityColor(rank / totalWizards) };
+  const rankStyle = { color: getAffinityRarityColor(rank / totalWizards) };
 
   const affinities = Object.fromEntries(Object.entries(wizard.affinities).filter((e) => e[1] >= 3));
   const hasAffinities = Object.keys(affinities).length > 0;
@@ -155,7 +155,7 @@ const WizardDisplay = observer((): JSX.Element | null => {
                 Score
               </Typography>
               <Typography variant="caption" align="center">
-                {wizard.score?.toFixed(2)}
+                {wizard.score?.total.toFixed(2)}
               </Typography>
             </div>
           </div>
@@ -228,15 +228,63 @@ const WizardDisplay = observer((): JSX.Element | null => {
                     </div>
                   );
                 })}
-            {!hasAffinities && (
-              <Typography variant="body2" align="center" className={classes.section}>
-                0 notable affinities
-              </Typography>
-            )}
-            {otherAffinities > 0 && (
-              <Typography variant="body2" align="center">
-                {otherAffinities} other {otherAffinities > 1 ? 'affinities' : 'affinity'}
-              </Typography>
+            <div className={clsx(classes.flexContainer, classes.rankContainer, classes.section)}>
+              {!hasAffinities && (
+                <Typography variant="body2" align="center" className={classes.section}>
+                  0 notable affinities
+                </Typography>
+              )}
+              {otherAffinities > 0 && (
+                <Typography variant="body2" align="center">
+                  {otherAffinities} other {otherAffinities > 1 ? 'affinities' : 'affinity'}
+                </Typography>
+              )}
+            </div>
+            {ranks.custom && wizard.score && (
+              <>
+                <Typography variant="body1" align="center" className={classes.section}>
+                  Score Breakdown
+                </Typography>
+                <div className={classes.traitItem}>
+                  <div className={classes.descriptor}>
+                    <Typography variant="body2" align="left">
+                      Trait Score
+                    </Typography>
+                    <Typography variant="caption" align="left" className={classes.rarity}>
+                      Trait Percentile
+                    </Typography>
+                  </div>
+                  <Typography variant="h6" align="right">
+                    {wizard.score.trait.toFixed(2)}
+                  </Typography>
+                </div>
+                <div className={classes.traitItem}>
+                  <div className={classes.descriptor}>
+                    <Typography variant="body2" align="left">
+                      Affinity Score
+                    </Typography>
+                    <Typography variant="caption" align="left" className={classes.rarity}>
+                      Trait Percentile
+                    </Typography>
+                  </div>
+                  <Typography variant="h6" align="right">
+                    {wizard.score.affinity.toFixed(2)}
+                  </Typography>
+                </div>
+                <div className={classes.traitItem}>
+                  <div className={classes.descriptor}>
+                    <Typography variant="body2" align="left">
+                      Name Score
+                    </Typography>
+                    <Typography variant="caption" align="left" className={classes.rarity}>
+                      Trait Percentile
+                    </Typography>
+                  </div>
+                  <Typography variant="h6" align="right">
+                    {wizard.score.name.toFixed(2)}
+                  </Typography>
+                </div>
+              </>
             )}
           </div>
         </div>

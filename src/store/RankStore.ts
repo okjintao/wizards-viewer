@@ -1,4 +1,5 @@
 import { action, extendObservable, IObjectDidChange, observe } from 'mobx';
+import { Score } from '../interface/score.interface';
 import { ScoreStats } from '../interface/score-stats.interface';
 import { WizardData } from '../interface/wizard-data.interface';
 import { RootStore } from './RootStore';
@@ -6,7 +7,7 @@ import { WizardStore } from './WizardStore';
 
 export class RankStore extends WizardStore {
   private baseScore = 1000;
-  private scoreStats: ScoreStats;
+  public scoreStats: ScoreStats;
   public ranking: WizardData[];
   public custom = false;
   public isSorting = false;
@@ -32,6 +33,7 @@ export class RankStore extends WizardStore {
     const compositeRarities = Object.values(this.wizards).map((wizard) =>
       Math.pow(this.getTraitsRarity(wizard, true) * this.getTraitsRarity(wizard, false), 0.01),
     );
+    const nameScores = Object.values(this.wizards).map((wizard) => wizard.nameScore);
     this.scoreStats = {
       minAffinityWeight: Math.min(...weights),
       maxAffinityWeight: Math.max(...weights),
@@ -45,6 +47,8 @@ export class RankStore extends WizardStore {
       maxPrimarityTraitRarity: Math.max(...primaryRarities),
       minSecondaryTraitRarity: Math.min(...secondaryRarities),
       maxSecondaryTraitRarity: Math.max(...secondaryRarities),
+      minNameScore: Math.min(...nameScores),
+      maxNameScore: Math.max(...nameScores),
     };
     this.ranking = this.evaluateRank();
 
@@ -74,10 +78,18 @@ export class RankStore extends WizardStore {
       .map((e) => e[1]);
     const traitCounts = Object.keys(this.traitCounts).map((key) => `${key} traits`);
     const affinityCounts = Object.keys(this.affinityOccurences).map((key) => `${key} affinity`);
-    return [...traits, ...traitCounts, ...affinityCounts];
+    const locations = Object.values(this.wizards)
+      .filter((w) => w.location)
+      .map((w) => w.location)
+      .map((key) => `location: ${key}`);
+    const titles = Object.values(this.wizards)
+      .filter((w) => w.title)
+      .map((w) => w.title)
+      .map((key) => `title: ${key}`);
+    return [...traits, ...traitCounts, ...affinityCounts, ...locations, ...titles];
   }
 
-  display(start: number, end: number): WizardData[] {
+  get display(): WizardData[] {
     let displayList: WizardData[] = [];
     const { wizards } = this.store.user;
     if (this.showUser) {
@@ -85,65 +97,63 @@ export class RankStore extends WizardStore {
     } else {
       displayList = this.ranking;
     }
-    return displayList
-      .filter((wizard) => {
-        const affinityCount = wizard.affinities[wizard.maxAffinity];
-        if (this.maxAffinity && affinityCount < 5) {
-          return false;
-        }
-        if (this.maxPercent && affinityCount < Object.keys(wizard.traits).length - 1) {
-          return false;
-        }
-        if (!this.filter) {
-          return true;
-        }
+    return displayList.filter((wizard) => {
+      const affinityCount = wizard.affinities[wizard.maxAffinity];
+      if (this.maxAffinity && affinityCount < 5) {
+        return false;
+      }
+      if (this.maxPercent && affinityCount < Object.keys(wizard.traits).length - 1) {
+        return false;
+      }
+      if (!this.filter) {
+        return true;
+      }
 
-        const localFilter = this.filter;
+      const localFilter = this.filter;
 
-        // match exact words / partials
-        const nameMatch = wizard.name.toLowerCase().includes(localFilter);
-        const traitMatch = Object.values(wizard.traits).some((trait) => trait.includes(localFilter));
+      // match exact words / partials
+      const nameMatch = wizard.name.toLowerCase().includes(localFilter);
+      const traitMatch = Object.values(wizard.traits).some((trait) => trait.includes(localFilter));
 
-        // match ranking / serial number look ups
-        let serialMatch = false;
-        let rankMatch = false;
-        if (!isNaN(parseFloat(localFilter))) {
-          const numericFilter = Number(localFilter);
-          serialMatch = Number(wizard.id) === numericFilter;
-          rankMatch = wizard.rank === numericFilter;
+      // match ranking / serial number look ups
+      let serialMatch = false;
+      let rankMatch = false;
+      if (!isNaN(parseFloat(localFilter))) {
+        const numericFilter = Number(localFilter);
+        serialMatch = Number(wizard.id) === numericFilter;
+        rankMatch = wizard.rank === numericFilter;
+      }
+
+      // match trait count look up
+      let traitCountMatches = false;
+      try {
+        const [traitCount, maybeTraits] = localFilter.split(' ');
+        if (!isNaN(parseFloat(traitCount)) && maybeTraits.toLowerCase() === 'traits') {
+          traitCountMatches = wizard.traitCount === Number(traitCount);
         }
+      } catch {}
 
-        // match trait count look up
-        let traitCountMatches = false;
-        try {
-          const [traitCount, maybeTraits] = localFilter.split(' ');
-          if (!isNaN(parseFloat(traitCount)) && maybeTraits.toLowerCase() === 'traits') {
-            traitCountMatches = wizard.traitCount === Number(traitCount);
+      // match name length look up
+      let affinityMatches = false;
+      try {
+        const maybeAffinitySearch = localFilter.split(' ');
+        if (!isNaN(parseFloat(maybeAffinitySearch[0])) && maybeAffinitySearch.slice(1).join(' ') === 'affinity') {
+          const numericAffinity = Number(maybeAffinitySearch[0]);
+          affinityMatches = wizard.maxAffinity === numericAffinity;
+          if (!affinityMatches) {
+            affinityMatches = Object.keys(wizard.affinities).some((key) => Number(key) === numericAffinity);
           }
-        } catch {}
+        }
+      } catch {}
 
-        // match name length look up
-        let affinityMatches = false;
-        try {
-          const maybeAffinitySearch = localFilter.split(' ');
-          if (!isNaN(parseFloat(maybeAffinitySearch[0])) && maybeAffinitySearch.slice(1).join(' ') === 'affinity') {
-            const numericAffinity = Number(maybeAffinitySearch[0]);
-            affinityMatches = wizard.maxAffinity === numericAffinity;
-            if (!affinityMatches) {
-              affinityMatches = Object.keys(wizard.affinities).some((key) => Number(key) === numericAffinity);
-            }
-          }
-        } catch {}
-
-        return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches;
-      })
-      .slice(start, end);
+      return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches;
+    });
   }
 
   evaluateRank(wizards?: WizardData[]): WizardData[] {
     return Object.values(wizards ?? this.wizards)
       .slice()
-      .sort((a, b) => this.score(b) - this.score(a))
+      .sort((a, b) => this.score(b).total - this.score(a).total)
       .map((w, i) => {
         w.rank = i + 1;
         w.score = this.score(w);
@@ -156,7 +166,10 @@ export class RankStore extends WizardStore {
       (total, value) => (total += Math.pow(2, value ** 2)),
       0,
     );
-    const normalizedWeight = Object.values(wizard.affinities).length * 5;
+    const normalizedWeight = Object.values(wizard.affinities).reduce(
+      (total, value) => (total += Math.pow(2, (6 - value) ** 2)),
+      0,
+    );
     return affinityWeight / normalizedWeight;
   }
 
@@ -186,7 +199,7 @@ export class RankStore extends WizardStore {
     return this.baseScore - score + this.baseScore * 0.2;
   }
 
-  score(wizard: WizardData): number {
+  score(wizard: WizardData): Score {
     const {
       minAffinityWeight,
       maxAffinityWeight,
@@ -200,11 +213,19 @@ export class RankStore extends WizardStore {
       maxPrimarityTraitRarity,
       minSecondaryTraitRarity,
       maxSecondaryTraitRarity,
+      minNameScore,
+      maxNameScore,
     } = this.scoreStats;
 
     if (!this.custom) {
       const rarity = Object.keys(wizard.traits).reduce((total, t) => (total *= this.getRarity(t)), 1);
-      return this.reverseScoreFromRange(minTraitRarity, maxTraitRarity, Math.pow(rarity, 0.01));
+      const score = this.reverseScoreFromRange(minTraitRarity, maxTraitRarity, Math.pow(rarity, 0.01));
+      return {
+        affinity: 0,
+        trait: 0,
+        name: 0,
+        total: score,
+      };
     }
 
     // trait score calculation
@@ -228,7 +249,14 @@ export class RankStore extends WizardStore {
     const affinityPercentileScore = this.scoreFromRange(minAffinityWeight, maxAffinityWeight, affinityWeight);
     const affinityCompositeScore = affinityRarityScore * 0.2 + maxAffinityScore * 0.2 + affinityPercentileScore * 0.6;
 
-    return affinityCompositeScore * 0.375 + traitCompositeScore * 0.625;
+    // const name score calculations
+    const nameRawScore = this.scoreFromRange(minNameScore, maxNameScore, wizard.nameScore);
+
+    const affinity = affinityCompositeScore * 0.4;
+    const trait = traitCompositeScore * 0.4;
+    const name = nameRawScore * 0.2;
+    const total = affinity + trait + name;
+    return { affinity, trait, name, total };
   }
 
   getRarity(trait: string): number {
