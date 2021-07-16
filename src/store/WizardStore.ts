@@ -71,7 +71,7 @@ export class WizardStore {
 
     const evaluatedWizards: WizardMap = Object.fromEntries(
       wizards.map((wizard) => {
-        const { name, id, traits, image } = wizard;
+        const { name, id, traits, image, title, nameScore, location } = wizard;
         const affinityCounts: FrequencyMap = {};
         traits.flatMap((t) => traitToAffinities[t]).forEach((t) => this.count(affinityCounts, t));
         const maxKey = Object.entries(affinityCounts).sort((a, b) => b[1] - a[1])[0][0];
@@ -83,6 +83,9 @@ export class WizardStore {
           affinities: affinityCounts,
           image,
           maxAffinity: Number(maxKey),
+          title,
+          nameScore,
+          location,
         };
         return [wizard.id, data];
       }),
@@ -127,6 +130,9 @@ export class WizardStore {
       'TV',
       'Dpit',
       'Madotsuki',
+      'popular',
+      'bread',
+      'rawdawg',
     ]);
     const suffix = this.randomItem([
       '',
@@ -194,13 +200,20 @@ export class WizardStore {
     return {
       id: '10001',
       rank: 10001,
-      score: 0,
+      score: {
+        affinity: 0,
+        trait: 0,
+        name: 0,
+        total: 0,
+      },
       name,
       traitCount,
       traits: wizardTraits,
       image: '',
       affinities,
       maxAffinity: Number(maxAffinity),
+      title: '',
+      nameScore: 0,
     };
   }
 

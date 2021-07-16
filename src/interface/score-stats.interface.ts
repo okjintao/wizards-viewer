@@ -11,4 +11,6 @@ export interface ScoreStats {
   maxPrimarityTraitRarity: number;
   minSecondaryTraitRarity: number;
   maxSecondaryTraitRarity: number;
+  minNameScore: number;
+  maxNameScore: number;
 }
