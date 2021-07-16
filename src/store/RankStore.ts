@@ -9,8 +9,8 @@ export class RankStore extends WizardStore {
   private baseScore = 1000;
   public scoreStats: ScoreStats;
   public ranking: WizardData[];
-  public custom = false;
-  public isSorting = false;
+  public customRanking: WizardData[];
+  public custom = true;
   public showUser = false;
   public maxAffinity = false;
   public maxPercent = false;
@@ -50,9 +50,13 @@ export class RankStore extends WizardStore {
       minNameScore: Math.min(...nameScores),
       maxNameScore: Math.max(...nameScores),
     };
+    this.customRanking = this.evaluateRank();
+    this.custom = false;
     this.ranking = this.evaluateRank();
+    this.updateUserWizards();
 
     const rankObeserver = extendObservable(this, {
+      ranking: this.ranking,
       custom: this.custom,
       filter: this.filter,
       showUser: this.showUser,
@@ -61,15 +65,17 @@ export class RankStore extends WizardStore {
     });
 
     observe(rankObeserver, (change: IObjectDidChange) => {
-      if (change.name !== 'showUser') {
-        this.isSorting = true;
-        this.ranking = this.evaluateRank();
-        const wizards = this.store.user.wizards ?? [];
-        const userWizards = new Set(wizards.map((wizard) => wizard.id));
-        this.store.user.wizards = this.ranking.filter((wizard) => userWizards.has(wizard.id));
-        this.isSorting = false;
+      if (change.name === 'custom') {
+        this.updateUserWizards();
       }
     });
+  }
+
+  updateUserWizards() {
+    const ranking = this.custom ? this.customRanking : this.ranking;
+    const wizards = this.store.user.wizards ?? [];
+    const userWizards = new Set(wizards.map((wizard) => wizard.id));
+    this.store.user.wizards = ranking.filter((wizard) => userWizards.has(wizard.id));
   }
 
   get searchOptions(): string[] {
@@ -95,7 +101,7 @@ export class RankStore extends WizardStore {
     if (this.showUser) {
       displayList = wizards ? wizards : [];
     } else {
-      displayList = this.ranking;
+      displayList = this.custom ? this.customRanking : this.ranking;
     }
     return displayList.filter((wizard) => {
       const affinityCount = wizard.affinities[wizard.maxAffinity];
@@ -150,9 +156,9 @@ export class RankStore extends WizardStore {
     });
   }
 
-  evaluateRank(wizards?: WizardData[]): WizardData[] {
-    return Object.values(wizards ?? this.wizards)
-      .slice()
+  evaluateRank(): WizardData[] {
+    const wizards: WizardData[] = JSON.parse(JSON.stringify(Object.values(this.wizards)));
+    return wizards
       .sort((a, b) => this.score(b).total - this.score(a).total)
       .map((w, i) => {
         w.rank = i + 1;
@@ -280,23 +286,14 @@ export class RankStore extends WizardStore {
   }
 
   toggleCustom = action(() => {
-    if (this.isSorting) {
-      return;
-    }
     this.custom = !this.custom;
   });
 
   toggleMaxAffinity = action(() => {
-    if (this.isSorting) {
-      return;
-    }
     this.maxAffinity = !this.maxAffinity;
   });
 
   toggleMaxPercent = action(() => {
-    if (this.isSorting) {
-      return;
-    }
     this.maxPercent = !this.maxPercent;
   });
 
@@ -305,13 +302,9 @@ export class RankStore extends WizardStore {
       return;
     }
     this.showUser = showUser;
-    this.search(undefined);
   });
 
   search = action((filter?: string) => {
-    if (this.isSorting) {
-      return;
-    }
     this.store.state.setWizard(undefined);
     this.filter = filter;
   });

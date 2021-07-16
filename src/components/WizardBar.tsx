@@ -229,7 +229,7 @@ const WizardBar = observer((): JSX.Element | null => {
         </Toolbar>
       </AppBar>
       <Container>
-        <Collapse in={state.showFilter} unmountOnExit>
+        <Collapse in={state.showFilter}>
           <WizardFilterOptions />
         </Collapse>
       </Container>

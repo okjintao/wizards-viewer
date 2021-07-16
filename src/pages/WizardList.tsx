@@ -47,7 +47,7 @@ const WizardList = observer(() => {
 
   useEffect(() => {
     setPage(0);
-  }, [ranks.showUser]);
+  }, [ranks.showUser, ranks.filter]);
 
   return (
     <div className={classes.itemContainer}>
