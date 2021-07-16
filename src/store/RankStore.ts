@@ -78,6 +78,10 @@ export class RankStore extends WizardStore {
     this.store.user.wizards = ranking.filter((wizard) => userWizards.has(wizard.id));
   }
 
+  get displayRanking(): WizardData[] {
+    return this.custom ? this.customRanking : this.ranking;
+  }
+
   get searchOptions(): string[] {
     const traits = Object.entries(this.traitMap)
       .filter((trait) => this.traitMap[trait[0]])

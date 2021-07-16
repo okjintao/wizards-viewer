@@ -81,13 +81,13 @@ const WizardDisplay = observer((): JSX.Element | null => {
   const classes = useStyles(viewerTheme);
   const store = useContext(StoreContext);
   const { state, ranks } = store;
-  const { ranking, totalWizards, affinityOccurences } = ranks;
+  const { displayRanking, totalWizards, affinityOccurences } = ranks;
 
   const random = ranks.randomWizard();
   const [wizard, setWizard] = useState<WizardData>(random);
   useEffect(() => {
     if (state.wizard) {
-      setWizard(ranking[state.wizard - 1]);
+      setWizard(displayRanking[state.wizard - 1]);
     } else {
       setWizard(random);
     }
