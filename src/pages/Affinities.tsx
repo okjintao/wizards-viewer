@@ -94,6 +94,7 @@ const Affinities = observer((): JSX.Element => {
               return (
                 <Paper key={item} className={classes.card}>
                   <Typography variant="body1">{traitMap[item]}</Typography>
+                  <img src={"/assets/traits/" + item + ".png"} />
                 </Paper>
               );
             })}
