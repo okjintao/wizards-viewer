@@ -54,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
   card: {
     margin: theme.spacing(2),
     padding: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
 }));
 
@@ -94,6 +97,7 @@ const Affinities = observer((): JSX.Element => {
               return (
                 <Paper key={item} className={classes.card}>
                   <Typography variant="body1">{traitMap[item]}</Typography>
+                  <img src={'/assets/traits/' + item + '.png'} height={75} width={75} />
                 </Paper>
               );
             })}
