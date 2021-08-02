@@ -74,7 +74,14 @@ export class WizardStore {
         const { name, id, traits, image, title, nameScore, location } = wizard;
         const affinityCounts: FrequencyMap = {};
         traits.flatMap((t) => traitToAffinities[t]).forEach((t) => this.count(affinityCounts, t));
-        const maxKey = Object.entries(affinityCounts).sort((a, b) => b[1] - a[1])[0][0];
+        const maxKey = Object.entries(affinityCounts).sort((a, b) => {
+          const [aKey, aVal] = a;
+          const [bKey, bVal] = b;
+          if (aVal === bVal) {
+            return affinityOccurences[aKey] - affinityOccurences[bKey];
+          }
+          return bVal - aVal;
+        })[0][0];
         const data = {
           name,
           id,
