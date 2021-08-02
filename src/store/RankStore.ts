@@ -96,7 +96,7 @@ export class RankStore extends WizardStore {
       .filter((w) => w.title)
       .map((w) => w.title)
       .map((key) => `title: ${key}`);
-    return [...traits, ...traitCounts, ...affinityCounts, ...locations, ...titles];
+    return [...new Set([...traits, ...traitCounts, ...affinityCounts, ...locations, ...titles])];
   }
 
   get display(): WizardData[] {
@@ -143,6 +143,15 @@ export class RankStore extends WizardStore {
         }
       } catch {}
 
+      // match trait count look up
+      let locationMatches = false;
+      try {
+        const [_location, maybeLocation] = localFilter.split(' ');
+        if (wizard.location && wizard.location.includes(maybeLocation)) {
+          locationMatches = true;
+        }
+      } catch {}
+
       // match name length look up
       let affinityMatches = false;
       try {
@@ -156,7 +165,9 @@ export class RankStore extends WizardStore {
         }
       } catch {}
 
-      return nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches;
+      return (
+        nameMatch || traitMatch || rankMatch || serialMatch || traitCountMatches || affinityMatches || locationMatches
+      );
     });
   }
 
