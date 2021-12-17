@@ -1,19 +1,13 @@
-import { AppStore } from '../interface/app-store.interface';
-import { RankStore } from './RankStore';
-import { StateStore } from './StateStore';
-import { UserStore } from './UserStore';
+import { Chain } from '../config/network/chain';
+import { Ethereum } from '../config/network/eth.network';
+import { NetworkStore } from './NetworkStore';
 
-export class RootStore implements AppStore {
-  public user: UserStore;
-  public ranks: RankStore;
-  public state: StateStore;
+export class RootStore {
+  private chains: Chain[];
+  public networkStore: NetworkStore;
 
   constructor() {
-    this.user = new UserStore(this);
-    this.ranks = new RankStore(this);
-    this.state = new StateStore();
+    this.chains = [new Ethereum()];
+    this.networkStore = new NetworkStore(this);
   }
 }
-
-const store = new RootStore();
-export default store;

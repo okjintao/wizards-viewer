@@ -1,42 +1,30 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "module": "esnext",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "outDir": "build",
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2019",
+    "target": "esnext",
     "lib": [
-      "es2019",
-      "dom"
-    ],
-    "typeRoots": [
-      "./node_modules/@types"
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
   },
-  "compileOnSave": true,
   "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
+    "next-env.d.ts",
+    "eth-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
-    "build",
     "node_modules"
   ]
 }
