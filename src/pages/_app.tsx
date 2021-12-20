@@ -9,6 +9,7 @@ import getStore from '../store/stores';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 function WizardWorkshop({ Component, pageProps }: AppProps): JSX.Element {
   const store = getStore();
@@ -59,12 +60,21 @@ function WizardWorkshop({ Component, pageProps }: AppProps): JSX.Element {
           property="og:description"
           content="Art Bridge aims to bridge the gap between Traditional Art and NFTs by guiding artists and creators on their journey to the digital domain."
         /> */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=New+Rocker&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <Web3ReactProvider getLibrary={getLibrary}>
         <StoreProvider value={store}>
-          <div className="flex flex-grow bg-cave">
+          <div className="flex flex-grow">
             <Sidebar />
-            <Component {...pageProps} />
+            <div className="flex flex-col flex-grow">
+              <Header />
+              <Component {...pageProps} />
+            </div>
             <ToastContainer
               position="bottom-right"
               newestOnTop={true}

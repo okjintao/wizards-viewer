@@ -26,13 +26,11 @@ const ConnectButton = observer(({ text = 'Connect' }: Props): JSX.Element => {
 
   return (
     <div
-      className="flex flex-grow items-center justify-center w-full h-full text-sm px-3 py-2"
+      className="flex text-sm px-3 py-2 tracking-tight bg-magestic text-white border border-gray-50 w-2/12 lg:w-1/12 cursor-pointer justify-center"
       onClick={handleClick}
     >
-      {!active && <div className="text-md leading-tight">{text}</div>}
-      {active && (
-        <div className="text-md leading-tight">{account.slice(0, 8)}</div>
-      )}
+      {!active && <div>{text}</div>}
+      {active && <div>{account.slice(0, 8)}</div>}
     </div>
   );
 });
