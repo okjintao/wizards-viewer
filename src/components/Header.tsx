@@ -3,7 +3,7 @@ import ConnectButton from './ConnectButton';
 
 function Header(): JSX.Element {
   return (
-    <div className="bg-haze flex justify-end items-center border-b border-skull p-4">
+    <div className="bg-cave flex justify-end items-center border-b border-skull p-4 shadow-lg">
       <ConnectButton />
     </div>
   );

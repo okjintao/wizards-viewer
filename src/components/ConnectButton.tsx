@@ -26,7 +26,7 @@ const ConnectButton = observer(({ text = 'Connect' }: Props): JSX.Element => {
 
   return (
     <div
-      className="flex text-sm px-3 py-2 tracking-tight bg-magestic text-white border border-gray-50 w-2/12 lg:w-1/12 cursor-pointer justify-center"
+      className="flex text-sm px-3 py-2 tracking-tight bg-haze text-white border border-gray-50 w-2/12 lg:w-1/12 cursor-pointer justify-center"
       onClick={handleClick}
     >
       {!active && <div>{text}</div>}

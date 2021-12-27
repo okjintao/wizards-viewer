@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 function Sidebar(): JSX.Element {
   return (
-    <div className="flex flex-col w-44 bg-haze px-4 pt-2 pb-6 text-white border-r border-skull">
+    <div className="flex flex-col w-44 bg-cave px-4 pt-2 pb-6 text-white border-r border-skull">
       <div className="flex-grow text-md tracking-tight mt-1">
         <Image
           alt="Forgotten Runes Logo"
