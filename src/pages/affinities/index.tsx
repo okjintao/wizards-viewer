@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useState } from 'react';
 import { StoreContext } from '../../store/StoreContext';
 import { Affinity } from '../../utils/interfaces/affinity.interface';
+import Image from 'next/image';
 
 const Affinites = observer((): JSX.Element => {
   const { affinityStore } = useContext(StoreContext);
@@ -12,6 +13,8 @@ const Affinites = observer((): JSX.Element => {
   useEffect(() => {
     setAffinity(affinityStore.affinities[149]);
   }, [affinityStore.affinities]);
+
+  console.log(affinity);
 
   return (
     <div className="flex flex-grow bg-depths text-white w-full">
@@ -56,8 +59,24 @@ const Affinites = observer((): JSX.Element => {
           <div className="flex flex-col mt-4">
             <div className="text-raspberry text-2xl">{affinity.name}</div>
             <div>(Affinity {affinity.id})</div>
-            <div className="flex">
-              <div className="flex flex-col">Trait Stuff</div>
+            <div className="flex flex-wrap">
+              {affinity.traits.map((trait) => {
+                return (
+                  <div
+                    key={trait.id}
+                    className="shadow-lg p-2 bg-tower flex items-center justify-center flex-col cursor-default flex-grow-0 m-2"
+                  >
+                    <Image
+                      alt={`${trait.name}`}
+                      src={`/img/traits/${trait.id}.png`}
+                      width={120}
+                      height={120}
+                    />
+                    <div className="text-lg ">{trait.name}</div>
+                    <div className="text-xs">Trait {trait.id}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

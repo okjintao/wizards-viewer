@@ -95,7 +95,7 @@ const Traits = observer(() => {
                   {trait.tags.map((tag) => {
                     return (
                       <div
-                        key={`affinity-${tag.id}`}
+                        key={`tag-${tag.id}`}
                         className="shadow-lg p-2 bg-tower flex items-center justify-center flex-col cursor-default flex-grow-0 m-2"
                       >
                         <div className="text-lg">{tag.name}</div>
