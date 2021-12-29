@@ -1,12 +1,40 @@
-import React from 'react';
+import { observer } from 'mobx-react-lite';
+import React, { useContext, useEffect, useState } from 'react';
+import { StoreContext } from '../../store/StoreContext';
+import { Affinity } from '../../utils/interfaces/affinity.interface';
 
-function Traits(): JSX.Element {
+const Affinites = observer((): JSX.Element => {
+  const { affinityStore } = useContext(StoreContext);
+  const isLoading = Object.keys(affinityStore.affinities).length === 0;
+
+  const [affinity, setAffinity] = useState<Affinity | null>(null);
+
+  useEffect(() => {
+    setAffinity(affinityStore.affinities[149]);
+  }, [affinityStore.affinities]);
+
   return (
-    <div className="flex flex-grow bg-depths text-white p-4">
-      <div className="w-72">
+    <div className="flex flex-grow bg-depths text-white w-full">
+      <div className="flex flex-col overflow-auto w-1/6">
+        {!isLoading &&
+          Object.values(affinityStore.affinities).map((affinity) => {
+            return (
+              <div
+                key={affinity.id}
+                onClick={() =>
+                  setAffinity(affinityStore.affinities[affinity.id])
+                }
+                className="flex w-full bg-sky hover:bg-depths px-4 py-1 border border-skull cursor-pointer"
+              >
+                {affinity.name}
+              </div>
+            );
+          })}
+      </div>
+      <div className="flex flex-col w-5/6 p-4">
         <div className="text-2xl text-raspberry">What is an Affinity?</div>
         <div className="mt-4 space-y-4">
-          <p>
+          <div>
             {
               "Within the realm of the Forgotten Runes Wizard's Cult there are \
               overarching themes or ideas known as affinities. As of now, these \
@@ -16,18 +44,17 @@ function Traits(): JSX.Element {
               make up a wizard's overall affinity. Any given wizard's maximum \
               affinity would be the number of traits they have."
             }
-          </p>
-          <p>
+          </div>
+          <div>
             As these affinities currently have no names, it is impossible to
             qualify them or provide searchable terms for them. Thus, as a
             community, we should name these affinities to have common
             terminology to discuss them.
-          </p>
+          </div>
         </div>
       </div>
-      <div className="w-3/4"></div>
     </div>
   );
-}
+});
 
-export default Traits;
+export default Affinites;
