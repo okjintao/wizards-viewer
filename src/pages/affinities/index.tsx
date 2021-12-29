@@ -52,6 +52,15 @@ const Affinites = observer((): JSX.Element => {
             terminology to discuss them.
           </div>
         </div>
+        {affinity && (
+          <div className="flex flex-col mt-4">
+            <div className="text-raspberry text-2xl">{affinity.name}</div>
+            <div>(Affinity {affinity.id})</div>
+            <div className="flex">
+              <div className="flex flex-col">Trait Stuff</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
