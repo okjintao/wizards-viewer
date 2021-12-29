@@ -22,7 +22,7 @@ function TraitItem({ trait, name, rarity }: TraitProps): JSX.Element {
 
 export default function Home(): JSX.Element {
   return (
-    <div className="flex flex-grow bg-depths">
+    <div className="flex flex-grow bg-cave">
       {/* Rankings */}
       <div className="flex w-full lg:w-3/4 overflow-auto p-4"></div>
       {/* Preview */}
@@ -56,6 +56,7 @@ export default function Home(): JSX.Element {
             <div className="text-sm w-full space-y-2">
               <TraitItem trait="Head" name="Anuran" rarity="Rare" />
             </div>
+            <div className="py-2">Affinities</div>
           </div>
           <div className="flex pt-16">
             <Image src={towerImage} alt="Wizard Tower" />

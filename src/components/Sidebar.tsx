@@ -2,9 +2,32 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface CollectionProps {
+  name: string;
+  links: {
+    name: string;
+    href: string;
+  }[];
+}
+
+function CollectionLinks({ name, links }: CollectionProps): JSX.Element {
+  return (
+    <>
+      <div className="cursor-pointer text-xl">{name}</div>
+      <div className="flex flex-col pl-2 text-md">
+        {links.map((l) => (
+          <Link key={`${name}-${l.href}`} href={l.href}>
+            {l.name}
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
+
 function Sidebar(): JSX.Element {
   return (
-    <div className="flex flex-col w-44 bg-cave px-4 pt-2 pb-6 text-white border-r border-skull">
+    <div className="flex flex-col bg-depths px-4 pt-2 pb-6 text-white border-r border-skull">
       <div className="flex-grow text-md tracking-tight mt-1">
         <Image
           alt="Forgotten Runes Logo"
@@ -12,10 +35,29 @@ function Sidebar(): JSX.Element {
           height={45}
           width={140}
         />
-        <div className="flex flex-col space-y-1 mt-4 text-lg">
-          <Link href="/">Ranking</Link>
-          <Link href="/traits">Traits</Link>
-          <Link href="/affinities">Affinities</Link>
+        <div className="flex flex-col space-y-1 mt-4">
+          <CollectionLinks
+            name="Wizards"
+            links={[
+              { name: 'Ranking', href: '/' },
+              { name: 'Traits', href: '/traits' },
+              { name: 'Affinities', href: '/affinities' },
+            ]}
+          />
+          <CollectionLinks
+            name="Souls"
+            links={[
+              { name: 'Ranking', href: '/souls' },
+              { name: 'Traits', href: '/souls-traits' },
+            ]}
+          />
+          <CollectionLinks
+            name="Ponies"
+            links={[
+              { name: 'Ranking', href: '/ponies' },
+              { name: 'Traits', href: '/ponies-traits' },
+            ]}
+          />
         </div>
       </div>
       <div className="flex flex-col">

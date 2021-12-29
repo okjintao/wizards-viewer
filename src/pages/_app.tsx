@@ -71,9 +71,11 @@ function WizardWorkshop({ Component, pageProps }: AppProps): JSX.Element {
         <StoreProvider value={store}>
           <div className="flex flex-grow">
             <Sidebar />
-            <div className="flex flex-col flex-grow">
+            <div className="flex flex-col flex-grow max-h-screen w-5/6">
               <Header />
-              <Component {...pageProps} />
+              <div className="overflow-auto flex flex-grow">
+                <Component {...pageProps} />
+              </div>
             </div>
             <ToastContainer
               position="bottom-right"
