@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Image from 'next/image';
 import towerImage from '../../public/img/tower.png';
 import { observer } from 'mobx-react-lite';
@@ -31,6 +31,9 @@ const WizardRanks = observer((): JSX.Element => {
   );
 
   const [wizard, setWizard] = useState<Wizard | null>(null);
+  useEffect(() => {
+    setWizard(wizardStore.wizards[Object.keys(wizardStore.wizards)[0]]);
+  }, [wizardStore.wizards]);
 
   return (
     <div className="flex flex-grow bg-cave">
@@ -90,18 +93,34 @@ const WizardRanks = observer((): JSX.Element => {
             </div>
           )}
           <div className="flex flex-col items-center h-64 absolute z-10 transform translate-y-80 bg-depths w-64 border-2 border-skull p-4 overflow-auto shadow-lg">
-            <div className="pb-2">Traits</div>
-            <div className="text-sm w-full space-y-2">
-              {wizard.traits.map((t) => (
-                <TraitItem
-                  key={`${wizard.id}-${t.id}`}
-                  trait={t.type}
-                  name={t.name}
-                  rarity="Rare"
-                />
-              ))}
-            </div>
-            <div className="py-2">Affinities</div>
+            {wizard ? (
+              <>
+                <div className="pb-2">Traits</div>
+                <div className="text-sm w-full space-y-2">
+                  {wizard.traits.map((t) => (
+                    <TraitItem
+                      key={`${wizard.id}-${t.id}`}
+                      trait={t.type}
+                      name={t.name}
+                      rarity="Rare"
+                    />
+                  ))}
+                </div>
+                <div className="py-2">Affinities</div>
+                <div className="text-sm w-full space-y-2">
+                  {wizard.traits.map((t) => (
+                    <TraitItem
+                      key={`${wizard.id}-${t.id}`}
+                      trait={t.type}
+                      name={t.name}
+                      rarity="Rare"
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <span>Loading...</span>
+            )}
           </div>
           <div className="flex pt-16">
             <Image src={towerImage} alt="Wizard Tower" />
