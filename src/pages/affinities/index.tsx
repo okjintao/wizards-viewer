@@ -14,13 +14,15 @@ const Affinites = observer((): JSX.Element => {
     setAffinity(affinityStore.affinities[149]);
   }, [affinityStore.affinities]);
 
-  console.log(affinity);
+  const affinites = Object.values(affinityStore.affinities).sort((a, b) =>
+    a.name > b.name ? 1 : b.name > a.name ? -1 : 0,
+  );
 
   return (
     <div className="flex flex-grow bg-depths text-white w-full">
       <div className="flex flex-col overflow-auto w-1/6">
         {!isLoading &&
-          Object.values(affinityStore.affinities).map((affinity) => {
+          affinites.map((affinity) => {
             return (
               <div
                 key={affinity.id}
@@ -34,7 +36,7 @@ const Affinites = observer((): JSX.Element => {
             );
           })}
       </div>
-      <div className="flex flex-col w-5/6 p-4">
+      <div className="flex flex-col w-5/6 p-4 overflow-scroll">
         <div className="text-2xl text-raspberry">What is an Affinity?</div>
         <div className="mt-4 space-y-4">
           <div>
@@ -59,7 +61,7 @@ const Affinites = observer((): JSX.Element => {
           <div className="flex flex-col mt-4">
             <div className="text-raspberry text-2xl">{affinity.name}</div>
             <div>(Affinity {affinity.id})</div>
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap overflow-auto">
               {affinity.traits.map((trait) => {
                 return (
                   <div

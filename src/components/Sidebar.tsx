@@ -44,7 +44,7 @@ function Sidebar(): JSX.Element {
               { name: 'Affinities', href: '/affinities' },
             ]}
           />
-          <CollectionLinks
+          {/* <CollectionLinks
             name="Souls"
             links={[
               { name: 'Ranking', href: '/souls' },
@@ -57,7 +57,7 @@ function Sidebar(): JSX.Element {
               { name: 'Ranking', href: '/ponies' },
               { name: 'Traits', href: '/ponies-traits' },
             ]}
-          />
+          /> */}
         </div>
       </div>
       <div className="flex flex-col">
