@@ -93,7 +93,12 @@ const WizardRanks = observer((): JSX.Element => {
             <div className="pb-2">Traits</div>
             <div className="text-sm w-full space-y-2">
               {wizard.traits.map((t) => (
-                <TraitItem trait={t.type} name={t.name} rarity="Rare" />
+                <TraitItem
+                  key={`${wizard.id}-${t.id}`}
+                  trait={t.type}
+                  name={t.name}
+                  rarity="Rare"
+                />
               ))}
             </div>
             <div className="py-2">Affinities</div>
