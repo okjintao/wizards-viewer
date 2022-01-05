@@ -1,19 +1,27 @@
-import { AppStore } from '../interface/app-store.interface';
-import { RankStore } from './RankStore';
-import { StateStore } from './StateStore';
-import { UserStore } from './UserStore';
+import { Chain } from '../config/network/chain';
+import { Ethereum } from '../config/network/eth.network';
+import { NetworkStore } from './NetworkStore';
+import axios, { AxiosInstance } from 'axios';
+import { TraitStore } from './TraitStore';
+import { AffinityStore } from './AffinityStore';
+import { WizardStore } from './WziardStore';
 
-export class RootStore implements AppStore {
-  public user: UserStore;
-  public ranks: RankStore;
-  public state: StateStore;
+export class RootStore {
+  private chains: Chain[];
+  public client: AxiosInstance;
+  public networkStore: NetworkStore;
+  public wizardStore: WizardStore;
+  public traitStore: TraitStore;
+  public affinityStore: AffinityStore;
 
   constructor() {
-    this.user = new UserStore(this);
-    this.ranks = new RankStore(this);
-    this.state = new StateStore();
+    this.chains = [new Ethereum()];
+    this.client = axios.create({
+      baseURL: 'https://api.wizards.guide',
+    });
+    this.networkStore = new NetworkStore(this);
+    this.wizardStore = new WizardStore(this);
+    this.traitStore = new TraitStore(this);
+    this.affinityStore = new AffinityStore(this);
   }
 }
-
-const store = new RootStore();
-export default store;
